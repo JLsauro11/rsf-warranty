@@ -66,7 +66,7 @@
                         <form id="login-form" class="pt-3">
                             @csrf
                             <div class="form-group">
-                                <input type="email" name="email" id="email" class="form-control form-control-lg" placeholder="Username">
+                                <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Username">
                             </div>
                             <div class="form-group">
                                 <input type="password" name="password" id="password" class="form-control form-control-lg"  placeholder="Password">
@@ -119,7 +119,7 @@
                 type: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    email: $('#email').val(),
+                    username: $('#username').val(),
                     password: $('#password').val()
                 },
                 success: function(response) {

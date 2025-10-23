@@ -636,7 +636,7 @@
 
             var $btn = $form.find('.account-form-btn');
             $btn.prop('disabled', true);
-            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving');
+            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
 
             $.ajax({
                 url: '{{ route('account.update') }}',

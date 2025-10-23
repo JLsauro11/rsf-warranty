@@ -7,7 +7,7 @@ use App\Http\Controllers\SRFController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\ProductController;
+//use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductNameController;
 
 //Route::get('/', function () {
@@ -52,6 +52,8 @@ Route::group(['prefix' => 'product-name', 'as' => 'product-name.', 'middleware' 
         Route::post('add', 'add')->name('add');
         Route::get('trash', 'trash')->name('trash');
         Route::post('restore', 'restore')->name('restore');
+        Route::get('edit/{id}', 'edit')->name('edit');
+        Route::post('update', 'update')->name('update');
         Route::post('delete', 'delete')->name('delete');
 
     });

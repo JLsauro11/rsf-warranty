@@ -18,7 +18,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         if ($request->ajax()) {
-            $credentials = $request->only('email', 'password');
+            $credentials = $request->only('username', 'password');
 
             if (Auth::attempt($credentials)) {
 

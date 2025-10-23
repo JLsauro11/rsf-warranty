@@ -89,6 +89,41 @@
         </div>
     </div>
 
+    <div class="modal fade" id="editProductNameModal" tabindex="-1" role="dialog" aria-labelledby="editProductNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="edit-productName-form" method="post" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="id" id="edit_id">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProductNameModalLabel">Edit Product Name</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="edit_model_code" class="form-label">Model Label</label>
+                            <input type="text" class="form-control" id="edit_model_code" name="model_code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_product_id" class="form-label">Product</label>
+                            <select class="form-control" id="edit_product_id" name="product_id" required>
+                                @foreach($products as $product)
+                                    <option value="{{ $product->id }}">{{ $product->product_label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <!-- Add other fields as needed -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary editproductName-btn">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
 @endsection
 
 @push ('js')
@@ -156,14 +191,128 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        // row contains the full data object, e.g., row.id if available for identifying the record
-                        return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
-                            '<i class="fa fa-trash" style="color: red;"></i>' +
-                            '</button>';
+                        return `<button class="btn edit-btn" data-id="${row.id}" title="Edit">
+                        <i class="fas fa-edit" style="color: blue;"></i></button>
+
+                        <button class="btn delete-btn" data-id="${row.id}" title="Delete">
+                        <i class="fas fa-trash" style="color: red;"></i></button>`;
                     }
+
                 }
             ]
         });
+
+        var editUrlTemplate = "{{ url('product-name/edit') }}/:id";
+
+        $('#product-name-table tbody').on('click', 'button.edit-btn', function () {
+            var id = $(this).data('id');
+            var editUrl = editUrlTemplate.replace(':id', id);
+
+            $.ajax({
+                url: editUrl,
+                method: 'GET',
+                success: function (response) {
+                    $('#edit_id').val(response.id);
+                    $('#edit_model_code').val(response.model_code);
+                    $('#edit_product_id').val(response.product_id);
+                    $('#editProductNameModal').modal('show');
+                },
+                error: function () {
+                    swal("Error!", "Could not fetch data.", "error");
+                }
+            });
+        });
+
+        $('#edit-productName-form').on('submit', function (e) {
+            e.preventDefault();
+
+            var $form = $(this);
+            var formData = $form.serialize();
+
+            var $btn = $form.find('.editproductName-btn');
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');
+
+            $.ajax({
+                url: '{{ route('product-name.update') }}',
+                method: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+
+                    if (response.validation == true) {
+                        let errors = response.errors;
+
+                        if (typeof errors === 'object') {
+                            errors = Object.values(errors)[0];
+                            if (Array.isArray(errors)) {
+                                errors = errors[0];
+                            }
+                        }
+
+                        errors = errors || "An error occurred"; // fallback string if empty
+
+                        swal("Failed!", errors, {
+                            icon: "error",
+                            buttons: {
+                                confirm: {
+                                    className: "btn btn-danger",
+                                },
+                            },
+                        });
+                    } else {
+                        swal({
+                            title: "Success!",
+                            text: response.message,
+                            icon: "success",
+                            buttons: {
+                                confirm: {
+                                    text: "OK",
+                                    className: "btn btn-success"  // your custom CSS class
+                                }
+                            }
+                        })
+                    }
+
+
+                    $('#editProductNameModal').modal('hide');
+                    $('#edit-productName-form')[0].reset();
+                    $('#product-name-table').DataTable().ajax.reload(null, false);
+
+                },
+                error: function (xhr) {
+                    let errors = xhr.responseJSON.errors;
+
+                    if (typeof errors === 'object') {
+                        // If it's an object, try to get a string safely
+                        errors = Object.values(errors)[0];
+                        if (Array.isArray(errors)) {
+                            errors = errors[0];
+                        }
+                    }
+
+                    errors = errors || "An error occurred"; // fallback string if empty
+
+                    swal("Failed!", errors, {
+                        icon: "error",
+                        buttons: {
+                            confirm: {
+                                className: "btn btn-danger",
+                            },
+                        },
+                    });
+
+                },
+                complete: function() {
+                    $btn.prop('disabled', false);
+                    $btn.html('Update');
+                }
+            });
+        });
+
+
 
         $('#add-productName-form').on('submit', function(e) {
             e.preventDefault();
@@ -212,11 +361,11 @@
                                 }
                             }
                         })
-                        // Assuming response indicates success
+// Assuming response indicates success
                         $('#addProductNameModal').modal('hide');   // hide modal
                         $('#add-productName-form')[0].reset();     // reset form fields
 
-                        // Reload the datatable to show new product
+// Reload the datatable to show new product
                         $('#product-name-table').DataTable().ajax.reload();
                     }
 
@@ -227,7 +376,7 @@
                     let errors = xhr.responseJSON.errors;
 
                     if (typeof errors === 'object') {
-                        // If it's an object, try to get a string safely
+// If it's an object, try to get a string safely
                         errors = Object.values(errors)[0];
                         if (Array.isArray(errors)) {
                             errors = errors[0];

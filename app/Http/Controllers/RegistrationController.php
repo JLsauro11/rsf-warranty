@@ -84,7 +84,7 @@ class RegistrationController extends Controller
                 if ((int)$request->product === 1) {
                     $url = 'https://rs8.com.ph/warranty/';
                 } else {
-                    $url = 'https://rs8.com.ph/';
+                    $url = 'http://localhost/srf/warranty';
                 }
 
 

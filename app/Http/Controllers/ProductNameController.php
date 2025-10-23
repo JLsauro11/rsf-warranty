@@ -28,6 +28,44 @@ class ProductNameController extends Controller
         return view('product-name.index', compact('products'));
     }
 
+    public function edit($id)
+    {
+        $productName = ProductName::findOrFail($id);
+        return response()->json($productName);
+    }
+
+    public function update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:product_name,id',
+            'model_code' => 'required|string|max:255',
+            'product_id' => 'required|exists:product,id',
+            // Add other fields validation if needed
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'validation' => true,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $productName = ProductName::findOrFail($request->id);
+        $productName->model_code = $request->model_code;
+        $productName->model_label = strtoupper($request->input('model_code'));
+        $productName->product_id = $request->product_id;
+        // Update other fields as needed
+        $productName->save();
+
+        return response()->json([
+            'status' => true,
+            'validation' => false,
+            'message' => 'Product name updated successfully!',
+        ]);
+    }
+
+
     public function trash(Request $request)
     {
         if ($request->ajax()) {
@@ -48,7 +86,7 @@ class ProductNameController extends Controller
     {
         // Validate incoming request data
         $validator = Validator::make($request->all(), [
-            'model_code' => 'required|unique:product_name,model_code|max:20', // changed product_code to model_code
+            'model_code' => 'required|unique:product_name,model_code|max:100', // changed product_code to model_code
             'product_id' => 'required|exists:product,id',
         ], [
             // Custom messages with correct keys

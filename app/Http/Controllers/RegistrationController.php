@@ -24,7 +24,7 @@ class RegistrationController extends Controller
                     'product' => 'required|exists:product,id',              // Foreign key validation
                     'product_name' => 'required|exists:product_name,id',    // Foreign key validation
                     'serial_no' => 'required|string|max:255',
-                    'purchase_date' => 'required|date|before_or_equal:today',
+                    'purchase_date' => 'required|date|before_or_equal:today|after_or_equal:1900-01-01',
                     'receipt_no' => 'required|string|max:255',
                     'store_name' => 'required|string|max:150',
                     'fap_link' => 'required|string|max:255',

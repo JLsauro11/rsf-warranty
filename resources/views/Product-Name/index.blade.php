@@ -327,6 +327,9 @@
                 url: "{{ route('product-name.add') }}",  // your POST route to save product
                 method: 'POST',
                 data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
 
                     if (response.validation == true) {

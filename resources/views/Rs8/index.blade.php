@@ -263,7 +263,9 @@
                 data: {
                     id: id,
                     status: newStatus,
-                    _token: '{{ csrf_token() }}' // include CSRF token for Laravel
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     if (response.validation == true) {
@@ -372,7 +374,9 @@
                         method: 'POST',
                         data: {
                             id: id,
-                            _token: '{{ csrf_token() }}'
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(response) {
                             if (response.validation === true) {

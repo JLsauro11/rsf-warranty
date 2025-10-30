@@ -109,6 +109,7 @@
     $(function () {
         $('#login-form').on('submit', function(e) {
             e.preventDefault();
+            const formData = new FormData(this);
 
             var $btn = $('.auth-form-btn');
             $btn.prop('disabled', true);
@@ -117,24 +118,24 @@
             $.ajax({
                 url: '{{ route("login") }}',
                 type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    username: $('#username').val(),
-                    password: $('#password').val()
+                data: formData,
+                contentType: false,
+                processData: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     if (response.success) {
-                        swal({
-                            title: "Great Job!",
-                            text: response.message,
-                            icon: "success",
-                            timer: 1500,
-                            button: false
-                        });
+                        
+                        // swal({
+                        //     title: "Great Job!",
+                        //     text: response.message,
+                        //     icon: "success",
+                        //     timer: 1500,
+                        //     button: false
+                        // });
 
-                        setTimeout(function() {
-                            window.location.href = response.redirect_url;
-                        }, 1500);
+                        window.location.href = response.redirect_url;
                     }
                 },
 

@@ -21,27 +21,33 @@ class AuthController extends Controller
             $credentials = $request->only('username', 'password');
 
             if (Auth::attempt($credentials)) {
-
                 $user = Auth::user();
-                if (!$user->is_admin) {
-                    $user->is_admin = true;
-                    $user->save();
-                }
 
-                $request->session()->regenerate();
+                $redirectUrl = match ($user->role) {
+                'admin' => route('admin.index'),
+                'csr_rs8' => route('csr_rs8.index'),
+                'csr_srf' => route('csr_srf.index'),
+                default => route('login'),
+            };
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Logged in successfully.',
-                    'redirect_url' => route('index') // Add redirect URL here
-                ]);
-            }
+            $request->session()->regenerate();
+
+
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged in successfully.',
+                'redirect_url' => $redirectUrl,
+            ]);
+        }
 
             return response()->json(['success' => false, 'message' => 'Invalid credentials.'], 401);
         }
 
         return view('auth.login');
     }
+
+
 
 
     public function logout(Request $request)

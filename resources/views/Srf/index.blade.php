@@ -89,6 +89,32 @@
             font-weight: 600;
         }
 
+        .dataTables_filter {
+            margin-left: 10px; /* space between buttons and search */
+            margin-bottom: 0;  /* align vertically */
+        }
+
+        /* Excel green color */
+        .btn-excel {
+            background-color: #217346 !important; /* Excel Green */
+            color: white !important;
+        }
+
+        /* PDF red color */
+        .btn-pdf {
+            background-color: #d44646 !important; /* PDF Red */
+            color: white !important;
+        }
+
+        /* Optional: Add hover color changes */
+        .btn-excel:hover {
+            background-color: #1b5a30 !important;
+        }
+
+        .btn-pdf:hover {
+            background-color: #a83636 !important;
+        }
+
 
     </style>
 
@@ -149,11 +175,22 @@
 
 <script>
     $(document).ready(function () {
-        $("#srf-warranty").DataTable({
+        var yourBase64ReceiptImages = [];
+        var yourBase64ProductImages = [];
+
+        var table = $("#srf-warranty").DataTable({
             scrollX: true,
             processing: true,
             serverSide: false,
-            ajax: "{{ route('srf.index') }}",
+            ajax: {
+                url: "{{ route('srf.index') }}",
+                dataSrc: function(json) {
+                    // Map base64 images by the current order in data
+                    yourBase64ReceiptImages = json.data.map(item => item.receipt_image_base64 || '');
+                    yourBase64ProductImages = json.data.map(item => item.product_image_base64 || '');
+                    return json.data;
+                }
+            },
             columns: [
                 { data: 'first_name' },
                 { data: 'last_name' },
@@ -176,24 +213,22 @@
                     data: 'status',
                     render: function(data, type, row) {
                         if (!data) return '';
-                        let badgeClass = 'badge-secondary'; // default
-
+                        let badgeClass = 'badge-secondary';
                         if (data === 'pending') badgeClass = 'badge-warning';
                         else if (data === 'approved') badgeClass = 'badge-success';
                         else if (data === 'disapproved') badgeClass = 'badge-danger';
 
-                        return `
-        <div class="dropdown">
-            <button class="text-white btn btn-sm dropdown-toggle ${badgeClass}" type="button" id="statusDropdown${row.id}" data-bs-toggle="dropdown" aria-expanded="false" data-id="${row.id}">
-                ${data.charAt(0).toUpperCase() + data.slice(1)}
-            </button>
-<ul class="dropdown-menu p-2" aria-labelledby="statusDropdown${row.id}">
-    <li><a class="dropdown-item status-option badge-warning mb-1" href="#" data-id="${row.id}" data-status="pending">Pending</a></li>
-    <li><a class="dropdown-item status-option badge-success mb-1" href="#" data-id="${row.id}" data-status="approved">Approved</a></li>
-    <li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
-</ul>
-
-        </div>`;
+                        return `<div class="dropdown">
+                        <button class="text-white btn btn-sm dropdown-toggle ${badgeClass}" type="button"
+                                id="statusDropdown${row.id}" data-bs-toggle="dropdown" aria-expanded="false" data-id="${row.id}">
+                            ${data.charAt(0).toUpperCase() + data.slice(1)}
+                        </button>
+                        <ul class="dropdown-menu p-2" aria-labelledby="statusDropdown${row.id}">
+                            <li><a class="dropdown-item status-option badge-warning mb-1" href="#" data-id="${row.id}" data-status="pending">Pending</a></li>
+                            <li><a class="dropdown-item status-option badge-success mb-1" href="#" data-id="${row.id}" data-status="approved">Approved</a></li>
+                            <li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
+                        </ul>
+                    </div>`;
                     }
                 },
                 {
@@ -212,24 +247,99 @@
                             : '';
                     }
                 },
-//                {
-//                    data: 'video_path', render: function(data) {
-//                    return data ? '<a href="' + data + '" target="_blank">View Video</a>' : '';
-//                }
-//                },
                 {
                     data: null,
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        // row contains the full data object, e.g., row.id if available for identifying the record
                         return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
                             '<i class="fa fa-trash" style="color: red;"></i>' +
                             '</button>';
                     }
                 }
+            ],
+            dom: '<"d-flex justify-content-end align-items-center"Bf>rtip',
+            buttons: [
+                {
+                    extend: 'pdfHtml5',
+                    className: 'btn-pdf',
+                    exportOptions: {
+                        columns: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+                        format: {
+                            body: function(data, row, column, node) {
+                                if(column === 11 || column === 12) {
+                                    var div = document.createElement('div');
+                                    div.innerHTML = data;
+                                    var img = div.querySelector('img');
+                                    return img ? img.src : '';
+                                }
+                                if (column === 10) {
+                                    var div = document.createElement('div');
+                                    div.innerHTML = data;
+                                    var btn = div.querySelector('button.dropdown-toggle');
+                                    return btn ? btn.textContent.trim() : data;
+                                }
+                                if (column === 9) {
+                                    var div = document.createElement('div');
+                                    div.innerHTML = data;
+                                    return div.textContent || div.innerText || '';
+                                }
+                                return data;
+                            }
+                        },
+                        modifier: {
+                            search: 'applied',
+                            order: 'applied',
+                            page: 'all'
+                        }
+                    },
+                    customize: function(doc) {
+                        doc.pageSize = 'A4';
+                        doc.pageOrientation = 'landscape';
+                        doc.pageMargins = [10, 10, 10, 10];
+                        var tableBody = doc.content[1].table.body;
+
+                        tableBody.forEach(function(row, rowIndex) {
+                            if (rowIndex === 0) return;
+
+                            var isOdd = rowIndex % 2 === 1;
+                            var bgColor = isOdd ? '#f3f3f3' : '#ffffff';
+
+                            // Apply background color and alignment to all cells
+                            row.forEach(function(cell) {
+                                if (typeof cell === 'string') {
+                                    cell = { text: cell, alignment: 'center', fillColor: bgColor };
+                                } else {
+                                    cell.alignment = 'center';
+                                    cell.fillColor = bgColor;
+                                }
+                            });
+
+                            // Replace image cells with base64 images having consistent background color
+                            if (yourBase64ReceiptImages[rowIndex - 1]) {
+                                row[11] = {
+                                    image: yourBase64ReceiptImages[rowIndex - 1],
+                                    width: 50,
+                                    alignment: 'center',
+                                    fillColor: bgColor
+                                };
+                            }
+                            if (yourBase64ProductImages[rowIndex - 1]) {
+                                row[12] = {
+                                    image: yourBase64ProductImages[rowIndex - 1],
+                                    width: 50,
+                                    alignment: 'center',
+                                    fillColor: bgColor
+                                };
+                            }
+                        });
+
+                        doc.defaultStyle.fontSize = 8;
+                    }
+                }
             ]
         });
+
         $('#srf-warranty tbody').on('click', 'a.status-option', function(e) {
             e.preventDefault();
 

@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 
 class IsAdmin
 {
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next, $role)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return redirect('/login');
+        if (!auth()->check() || auth()->user()->role !== $role) {
+            abort(403, 'Unauthorized action.');
         }
-
         return $next($request);
     }
+
 }
 

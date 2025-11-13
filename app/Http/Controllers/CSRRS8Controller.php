@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\WarrantyRegistration;
+
 use Illuminate\Http\Request;
+use App\Models\WarrantyRegistration;
 use Illuminate\Support\Facades\Auth;
 
-class HomeController extends Controller
+class CSRRS8Controller extends Controller
 {
     public function index(Request $request)
     {
@@ -14,23 +15,16 @@ class HomeController extends Controller
             $query->where('product_code', 'rs8');
         })->count();
 
-        // Count where product_code is 'srf'
-        $srfCount = WarrantyRegistration::whereHas('product', function($query) {
-            $query->where('product_code', 'srf');
-        })->count();
-
         // Load all products with related product names for dropdowns
 
         if ($request->ajax()) {
             return response()->json([
                 'rs8Count' => $rs8Count,
-                'srfCount' => $srfCount,
             ]);
         }
 
-        return view('home.index', compact('rs8Count', 'srfCount'));
+        return view('csr_rs8.index', compact('rs8Count'));
     }
-
 
     public function accountDisplay(Request $request)
     {
@@ -48,7 +42,4 @@ class HomeController extends Controller
         // Optionally handle non-AJAX request, e.g., abort or redirect
         abort(404); // or return view('someview');
     }
-
-
-
 }

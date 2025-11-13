@@ -95,7 +95,7 @@
     <script>
         $(function () {
             $.ajax({
-                url: '{{ route("index") }}',
+                url: '{{ route("admin.index") }}',
                 type: 'GET',
                 success: function(data) {
                     $('#rs8-count').text(data.rs8Count);

@@ -50,7 +50,7 @@
     <div class="main-header-logo">
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">
-            <a href="{{ route('index') }}" class="logo">
+            <a href="{{ route(auth()->user()->role == 'admin' ? 'admin.index' : (auth()->user()->role == 'csr_rs8' ? 'csr_rs8.index' : 'csr_srf.index')) }}" class="logo">
                 <img
                         src="{{ asset('assets/img/rsf.png') }}"
                         alt="navbar brand"
@@ -617,8 +617,28 @@
         });
     });
 
+    // Determine user role in JS (you can pass it from Blade or fetch from backend)
+    var userRole = '{{ auth()->user()->role }}';
+
+    var accountDisplayRoute = '';
+
+    switch(userRole) {
+        case 'admin':
+            accountDisplayRoute = '{{ route("admin.accountDisplay") }}';
+            break;
+        case 'csr_rs8':
+            accountDisplayRoute = '{{ route("csr_rs8.accountDisplay") }}';
+            break;
+        case 'csr_srf':
+            accountDisplayRoute = '{{ route("csr_srf.accountDisplay") }}';
+            break;
+        default:
+            accountDisplayRoute = '{{ route("login") }}';
+            break;
+    }
+
     $.ajax({
-        url: '{{ route("accountDisplay") }}',
+        url: accountDisplayRoute,
         type: 'GET',
         success: function(data) {
             $('#userDisplay').text(data.user.username);
@@ -626,6 +646,7 @@
             $('#email').text(data.user.email);
         }
     });
+
 
     $(document).ready(function() {
         $('#accountForm').submit(function(e) {

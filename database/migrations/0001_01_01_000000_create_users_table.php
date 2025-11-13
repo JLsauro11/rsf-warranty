@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('verification_code', 10)->nullable();
             $table->timestamp('verification_expires_at')->nullable();
             $table->string('password');
-            $table->boolean('is_admin')->default(false);
+            $table->string('role')->default('csr_rs8');
             $table->rememberToken();
             $table->timestamps();
         });

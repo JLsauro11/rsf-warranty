@@ -12,10 +12,18 @@
 </style>
 @endpush
 
+@php
+    $userRole = auth()->user()->role;
+@endphp
+
 <div class="page-header">
     <ul class="breadcrumbs mb-3">
         <li class="nav-home">
-            <a href="{{ route('index') }}">
+            <a href="{{
+                $userRole === 'admin' ? route('admin.index') : (
+                    $userRole === 'csr_rs8' ? route('csr_rs8.index') : route('csr_srf.index')
+                )
+            }}">
                 <i class="icon-home"></i>
             </a>
         </li>
@@ -35,3 +43,4 @@
         @endif
     </ul>
 </div>
+

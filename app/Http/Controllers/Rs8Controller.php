@@ -12,14 +12,28 @@ class Rs8Controller extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            // Get registrations for product_code 'rs8'
             $registrations = WarrantyRegistration::whereHas('product', function ($query) {
                 $query->where('product_code', 'rs8');
             })->with(['product', 'productName'])->get();
 
             $data = $registrations->map(function ($registration) {
-                $receipt_imagePath = $registration->receipt_image_path ? url(ltrim($registration->receipt_image_path, '/')) : null;
-                $product_imagePath = $registration->product_image_path ? url(ltrim($registration->product_image_path, '/')) : null;
+                $receiptImagePath = $registration->receipt_image_path ? public_path(ltrim($registration->receipt_image_path, '/')) : null;
+                $productImagePath = $registration->product_image_path ? public_path(ltrim($registration->product_image_path, '/')) : null;
+
+                $receiptImageBase64 = '';
+                $productImageBase64 = '';
+
+                if ($receiptImagePath && file_exists($receiptImagePath)) {
+                    $type = pathinfo($receiptImagePath, PATHINFO_EXTENSION);
+                    $data = file_get_contents($receiptImagePath);
+                    $receiptImageBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
+
+                if ($productImagePath && file_exists($productImagePath)) {
+                    $type = pathinfo($productImagePath, PATHINFO_EXTENSION);
+                    $data = file_get_contents($productImagePath);
+                    $productImageBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
 
                 return [
                     'id' => $registration->id,
@@ -31,21 +45,22 @@ class Rs8Controller extends Controller
                     'serial_no' => $registration->serial_no,
                     'purchase_date' => $registration->purchase_date ? $registration->purchase_date->format('Y-m-d') : '',
                     'receipt_no' => $registration->receipt_no,
-                    'receipt_image_path' => $receipt_imagePath,
-                    'product_image_path' => $product_imagePath,
+                    'receipt_image_path' => $registration->receipt_image_path ? url(ltrim($registration->receipt_image_path, '/')) : null,
+                    'product_image_path' => $registration->product_image_path ? url(ltrim($registration->product_image_path, '/')) : null,
+                    'receipt_image_base64' => $receiptImageBase64,
+                    'product_image_base64' => $productImageBase64,
                     'store_name' => $registration->store_name,
                     'facebook_account_link' => $registration->facebook_account_link,
                     'status' => $registration->status,
                 ];
             });
 
-//            dd($data);
-
             return response()->json(['data' => $data]);
         }
 
         return view('rs8.index');
     }
+
 
 
 

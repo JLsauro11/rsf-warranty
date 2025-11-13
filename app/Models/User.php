@@ -46,8 +46,22 @@ class User extends Authenticatable
         ];
     }
 
+    const ROLE_ADMIN = 'admin';
+    const ROLE_CSR_RS8 = 'csr_rs8';
+    const ROLE_CSR_SRF = 'csr_srf';
+
     public function isAdmin()
     {
-        return $this->is_admin;
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isCsrRs8()
+    {
+        return $this->role === self::ROLE_CSR_RS8;
+    }
+
+    public function isCsrSrf()
+    {
+        return $this->role === self::ROLE_CSR_SRF;
     }
 }

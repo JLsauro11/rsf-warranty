@@ -82,19 +82,33 @@
                     <h4 class="text-section">Main</h4>
                 </li>
 
-                @if ($userRole === 'admin' || $userRole === 'csr_rs8')
-                    <li class="nav-item {{ request()->routeIs('rs8.index') ? 'active' : '' }}">
-                        <a href="{{ route('rs8.index') }}">
+                @if ($userRole === 'admin')
+                    <li class="nav-item {{ request()->routeIs('admin.rs8.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.rs8.index') }}">
                             <i class="fas fa-tachometer-alt"></i>
                             <p>RS8</p>
                         </a>
                     </li>
+                @elseif ($userRole === 'csr_rs8')
+                        <li class="nav-item {{ request()->routeIs('csr_rs8.rs8.index') ? 'active' : '' }}">
+                            <a href="{{ route('csr_rs8.rs8.index') }}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <p>RS8</p>
+                            </a>
+                        </li>
                 @endif
 
-                @if ($userRole === 'admin' || $userRole === 'csr_srf')
-                    <li class="nav-item {{ request()->routeIs('srf.index') ? 'active' : '' }}">
-                        <a href="{{ route('srf.index') }}">
+                @if ($userRole === 'admin')
+                    <li class="nav-item {{ request()->routeIs('admin.srf.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.srf.index') }}">
                             <i class="fas fa-chess-board"></i>
+                            <p>SRF</p>
+                        </a>
+                    </li>
+                @elseif ($userRole === 'csr_srf')
+                    <li class="nav-item {{ request()->routeIs('csr_srf.srf.index') ? 'active' : '' }}">
+                        <a href="{{ route('csr_srf.srf.index') }}">
+                            <i class="fas fa-tachometer-alt"></i>
                             <p>SRF</p>
                         </a>
                     </li>

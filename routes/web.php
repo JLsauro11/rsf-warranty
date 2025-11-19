@@ -30,11 +30,18 @@ Route::controller(AuthController::class)->group( function() {
     Route::match( ['post','get'], 'change-password', 'change_password_submit')->name('change-password-submit');
 });
 
-Route::group(['prefix' => 'account', 'as' => 'account.', 'middleware' => ['auth', 'role:admin,csr_rs8,csr_srf']], function(){
-    Route::controller(AccountController::class)->group(function () {
-        Route::match( ['post','get'],'update-account', 'update_account')->name('update');
-    });
+Route::group(['prefix' => 'admin/account', 'as' => 'admin.account.', 'middleware' => ['auth', 'role:admin']], function(){
+    Route::match(['post', 'get'], 'update-account', [AccountController::class, 'update_account'])->name('update');
 });
+
+Route::group(['prefix' => 'csr_rs8/account', 'as' => 'csr_rs8.account.', 'middleware' => ['auth', 'role:csr_rs8']], function(){
+    Route::match(['post', 'get'], 'update-account', [AccountController::class, 'update_account'])->name('update');
+});
+
+Route::group(['prefix' => 'csr_srf/account', 'as' => 'csr_srf.account.', 'middleware' => ['auth', 'role:csr_srf']], function(){
+    Route::match(['post', 'get'], 'update-account', [AccountController::class, 'update_account'])->name('update');
+});
+
 
 Route::controller(HomeController::class)->middleware(['auth', 'role:admin'])->group(function() {
     Route::get('/admin', 'index')->name('admin.index');
@@ -72,22 +79,34 @@ Route::group(['prefix' => 'product-name', 'as' => 'product-name.', 'middleware' 
     });
 });
 
-Route::group(['prefix' => 'rs8', 'as' => 'rs8.', 'middleware' => ['auth', 'role:admin,csr_rs8']], function(){
+Route::group(['prefix' => 'admin/rs8', 'as' => 'admin.rs8.', 'middleware' => ['auth', 'role:admin']], function(){
     Route::controller(Rs8Controller::class)->group(function () {
         Route::get('', 'index')->name('index'); // accessible by both admin and csr_rs8
 
         // Restrict these routes only for admins by applying middleware in controller or here:
-        Route::post('update-status', 'update_status')->name('update-status')->middleware('role:admin');
-        Route::post('delete', 'delete')->name('delete')->middleware('role:admin');
+        Route::post('update-status', 'update_status')->name('update-status');
+        Route::post('delete', 'delete')->name('delete');
     });
 });
 
-Route::group(['prefix' => 'srf', 'as' => 'srf.', 'middleware' => ['auth', 'role:admin,csr_srf']], function(){
+Route::group(['prefix' => 'csr_rs8/rs8', 'as' => 'csr_rs8.rs8.', 'middleware' => ['auth', 'role:csr_rs8']], function(){
+    Route::controller(Rs8Controller::class)->group(function () {
+        Route::get('', 'index')->name('index');
+    });
+});
+
+Route::group(['prefix' => 'admin/srf', 'as' => 'admin.srf.', 'middleware' => ['auth', 'role:admin']], function(){
     Route::controller(SRFController::class)->group(function () {
         Route::get('', 'index')->name('index'); // accessible by both admin and csr_srf
 
         Route::post('update-status', 'update_status')->name('update-status')->middleware('role:admin');
         Route::post('delete', 'delete')->name('delete')->middleware('role:admin');
+    });
+});
+
+Route::group(['prefix' => 'csr_srf/srf', 'as' => 'csr_srf.srf.', 'middleware' => ['auth', 'role:csr_srf']], function(){
+    Route::controller(SRFController::class)->group(function () {
+        Route::get('', 'index')->name('index');
     });
 });
 

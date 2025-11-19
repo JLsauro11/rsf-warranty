@@ -115,6 +115,8 @@
             background-color: #a83636 !important;
         }
 
+        
+
 
     </style>
 
@@ -174,6 +176,21 @@
 @push ('js')
 
 <script>
+
+    var userRole = @json(auth()->user()->role);
+
+    var ajaxUrl;
+
+    if (userRole === 'admin') {
+        ajaxUrl = '{{ route("admin.srf.index") }}';
+    } else if (userRole === 'csr_srf') {
+        ajaxUrl = '{{ route("csr_srf.srf.index") }}';
+    } else {
+        // Default fallback or redirect
+        ajaxUrl = '{{ route("login") }}';
+    }
+
+
     $(document).ready(function () {
         var yourBase64ReceiptImages = [];
         var yourBase64ProductImages = [];
@@ -183,7 +200,7 @@
             processing: true,
             serverSide: false,
             ajax: {
-                url: "{{ route('srf.index') }}",
+                url: ajaxUrl,
                 dataSrc: function(json) {
                     // Map base64 images by the current order in data
                     yourBase64ReceiptImages = json.data.map(item => item.receipt_image_base64 || '');
@@ -191,6 +208,12 @@
                     return json.data;
                 }
             },
+//            columnDefs: [
+//                {
+//                    targets: [10, 13], // zero-based index of Status and Action columns
+//                    visible: !(userRole === 'csr_rs8' || userRole === 'csr_srf')
+//                }
+//            ],
             columns: [
                 { data: 'first_name' },
                 { data: 'last_name' },
@@ -218,19 +241,29 @@
                         else if (data === 'approved') badgeClass = 'badge-success';
                         else if (data === 'disapproved') badgeClass = 'badge-danger';
 
-                        return `<div class="dropdown">
-                        <button class="text-white btn btn-sm dropdown-toggle ${badgeClass}" type="button"
-                                id="statusDropdown${row.id}" data-bs-toggle="dropdown" aria-expanded="false" data-id="${row.id}">
-                            ${data.charAt(0).toUpperCase() + data.slice(1)}
-                        </button>
-                        <ul class="dropdown-menu p-2" aria-labelledby="statusDropdown${row.id}">
-                            <li><a class="dropdown-item status-option badge-warning mb-1" href="#" data-id="${row.id}" data-status="pending">Pending</a></li>
-                            <li><a class="dropdown-item status-option badge-success mb-1" href="#" data-id="${row.id}" data-status="approved">Approved</a></li>
-                            <li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
-                        </ul>
-                    </div>`;
+                        // Use userRole variable defined in your scope to control rendering
+                        if (userRole === 'csr_rs8' || userRole === 'csr_srf') {
+                            return `<div class="dropdown">
+        <button class="text-white btn btn-sm ${badgeClass} disabled" type="button"
+                      id="statusDropdown${row.id}" aria-expanded="false" disabled>
+                      ${data.charAt(0).toUpperCase() + data.slice(1)}
+                  </button>`;
+                        } else {
+                            return `<div class="dropdown">
+        <button class="text-white btn btn-sm dropdown-toggle ${badgeClass}" type="button"
+                id="statusDropdown${row.id}" data-bs-toggle="dropdown" aria-expanded="false" data-id="${row.id}">
+            ${data.charAt(0).toUpperCase() + data.slice(1)}
+        </button>
+        <ul class="dropdown-menu p-2" aria-labelledby="statusDropdown${row.id}">
+            <li><a class="dropdown-item status-option badge-warning mb-1" href="#" data-id="${row.id}" data-status="pending">Pending</a></li>
+            <li><a class="dropdown-item status-option badge-success mb-1" href="#" data-id="${row.id}" data-status="approved">Approved</a></li>
+            <li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
+        </ul>
+      </div>`;
+                        }
                     }
                 },
+
                 {
                     data: 'receipt_image_path',
                     render: function(data) {
@@ -252,9 +285,15 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
-                            '<i class="fa fa-trash" style="color: red;"></i>' +
-                            '</button>';
+                        if (userRole === 'csr_rs8' || userRole === 'csr_srf') {
+                            return '<button class="btn delete-btn disabled" data-id="' + row.id + '" title="Delete">' +
+                                '<i class="fa fa-trash" style="color: gray;"></i>' +
+                                '</button>';
+                        }else{
+                            return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
+                                '<i class="fa fa-trash" style="color: red;"></i>' +
+                                '</button>';
+                        }
                     }
                 }
             ],
@@ -340,6 +379,13 @@
             ]
         });
 
+        var updateStatusUrl = '{{ route("admin.srf.update-status") }}';
+
+        // Prevent non-admin roles from attempting this action client-side:
+        if (userRole !== 'admin') {
+            updateStatusUrl = '';
+        }
+
         $('#srf-warranty tbody').on('click', 'a.status-option', function(e) {
             e.preventDefault();
 
@@ -359,7 +405,7 @@
             $dropdownBtn.prop('disabled', true);
 
             $.ajax({
-                url: '{{ route('srf.update-status') }}',  // Your update status API endpoint
+                url: updateStatusUrl,  // Your update status API endpoint
                 method: 'POST',
                 data: {
                     id: id,
@@ -442,6 +488,13 @@
             });
         });
 
+        var DeleteUrl = '{{ route("admin.srf.delete") }}';
+
+// Prevent non-admin roles from attempting this action client-side:
+        if (userRole !== 'admin') {
+            DeleteUrl = '';
+        }
+
         $('#srf-warranty tbody').on('click', 'button.delete-btn', function(e) {
             e.preventDefault();
 
@@ -469,7 +522,7 @@
                     $btn.prop('disabled', true);
 
                     $.ajax({
-                        url: '{{ route("srf.delete") }}',
+                        url: DeleteUrl,
                         method: 'POST',
                         data: {
                             id: id,

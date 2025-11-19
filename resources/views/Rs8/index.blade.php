@@ -155,8 +155,8 @@
                                             <th>Status</th>
                                             <th>Receipt Image</th>
                                             <th>Product Image</th>
-                                            {{--<th>Video</th>--}}
                                             <th>Action</th>
+
 
                                         </tr>
                                         </thead>
@@ -178,6 +178,20 @@
 @push ('js')
 
 <script>
+
+    var userRole = @json(auth()->user()->role);
+
+    var ajaxUrl;
+
+    if (userRole === 'admin') {
+        ajaxUrl = '{{ route("admin.rs8.index") }}';
+    } else if (userRole === 'csr_rs8') {
+        ajaxUrl = '{{ route("csr_rs8.rs8.index") }}';
+    } else {
+        // Default fallback or redirect
+        ajaxUrl = '{{ route("login") }}';
+    }
+
     $(document).ready(function () {
         var yourBase64ReceiptImages = [];
         var yourBase64ProductImages = [];
@@ -187,7 +201,7 @@
             processing: true,
             serverSide: false,
             ajax: {
-                url: "{{ route('rs8.index') }}",
+                url: ajaxUrl,
                 dataSrc: function(json) {
                     // Map base64 images by the current order in data
                     yourBase64ReceiptImages = json.data.map(item => item.receipt_image_base64 || '');
@@ -195,6 +209,12 @@
                     return json.data;
                 }
             },
+            columnDefs: [
+                {
+                    targets: [10, 13], // zero-based index of Status and Action columns
+                    visible: !(userRole === 'csr_rs8' || userRole === 'csr_srf')
+                }
+            ],
             columns: [
                 { data: 'first_name' },
                 { data: 'last_name' },
@@ -256,6 +276,7 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
+
                         return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
                             '<i class="fa fa-trash" style="color: red;"></i>' +
                             '</button>';
@@ -344,10 +365,20 @@
             ]
         });
 
+        var updateStatusUrl = '{{ route("admin.rs8.update-status") }}';
+
+        // Prevent non-admin roles from attempting this action client-side:
+        if (userRole !== 'admin') {
+            updateStatusUrl = '';
+        }
+
 
         $('#rs8-warranty tbody').on('click', 'a.status-option', function(e) {
             e.preventDefault();
-
+            if (userRole === 'csr_rs8' || userRole === 'csr_srf') {
+                swal("Access Denied", "You do not have permission to change status.", "error");
+                return;
+            }
             var $option = $(this);
             var id = $option.data('id');
             var newStatus = $option.data('status');
@@ -364,7 +395,7 @@
             $dropdownBtn.prop('disabled', true);
 
             $.ajax({
-                url: '{{ route('rs8.update-status') }}',  // Your update status API endpoint
+                url: updateStatusUrl,  // Your update status API endpoint
                 method: 'POST',
                 data: {
                     id: id,
@@ -449,9 +480,18 @@
             });
         });
 
+        var DeleteUrl = '{{ route("admin.rs8.delete") }}';
+
+// Prevent non-admin roles from attempting this action client-side:
+        if (userRole !== 'admin') {
+            DeleteUrl = '';
+        }
         $('#rs8-warranty tbody').on('click', 'button.delete-btn', function(e) {
             e.preventDefault();
-
+            if (userRole === 'csr_rs8' || userRole === 'csr_srf') {
+                swal("Access Denied", "You do not have permission to delete records.", "error");
+                return;
+            }
             var $btn = $(this);
             var id = $btn.data('id');
             var table = $('#rs8-warranty').DataTable(); // initialize DataTable instance
@@ -476,7 +516,7 @@
                     $btn.prop('disabled', true);
 
                     $.ajax({
-                        url: '{{ route("rs8.delete") }}',
+                        url: DeleteUrl,
                         method: 'POST',
                         data: {
                             id: id,

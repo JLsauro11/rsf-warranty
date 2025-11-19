@@ -617,26 +617,27 @@
         });
     });
 
-    // Determine user role in JS (you can pass it from Blade or fetch from backend)
-    var userRole = '{{ auth()->user()->role }}';
+    var userRole = @json(auth()->user()->role);
 
-    var accountDisplayRoute = '';
+    var routes = {
+        admin: {
+            update: '{{ route("admin.account.update") }}',
+            display: '{{ route("admin.accountDisplay") }}',
+        },
+        csr_rs8: {
+            update: '{{ route("csr_rs8.account.update") }}',
+            display: '{{ route("csr_rs8.accountDisplay") }}',
+        },
+        csr_srf: {
+            update: '{{ route("csr_srf.account.update") }}',
+            display: '{{ route("csr_srf.accountDisplay") }}',
+        }
+    };
 
-    switch(userRole) {
-        case 'admin':
-            accountDisplayRoute = '{{ route("admin.accountDisplay") }}';
-            break;
-        case 'csr_rs8':
-            accountDisplayRoute = '{{ route("csr_rs8.accountDisplay") }}';
-            break;
-        case 'csr_srf':
-            accountDisplayRoute = '{{ route("csr_srf.accountDisplay") }}';
-            break;
-        default:
-            accountDisplayRoute = '{{ route("login") }}';
-            break;
-    }
+    var accountDisplayRoute = routes[userRole]?.display || '{{ route("login") }}';
+    var accountUpdateRoute = routes[userRole]?.update || '{{ route("login") }}';
 
+    // Fetch user info for display
     $.ajax({
         url: accountDisplayRoute,
         type: 'GET',
@@ -646,7 +647,6 @@
             $('#email').text(data.user.email);
         }
     });
-
 
     $(document).ready(function() {
         $('#accountForm').submit(function(e) {
@@ -660,46 +660,31 @@
             $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
 
             $.ajax({
-                url: '{{ route('account.update') }}',
+                url: accountUpdateRoute,
                 method: 'POST',
                 data: formData,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (response) {
-
-                    if (response.validation == true) {
+                    if (response.validation) {
                         let errors = response.errors;
-
                         if (typeof errors === 'object') {
                             errors = Object.values(errors)[0];
                             if (Array.isArray(errors)) {
                                 errors = errors[0];
                             }
                         }
+                        errors = errors || "An error occurred";
 
-                        errors = errors || "An error occurred"; // fallback string if empty
-
-                        swal("Failed!", errors, {
-                            icon: "error",
-                            buttons: {
-                                confirm: {
-                                    className: "btn btn-danger",
-                                },
-                            },
-                        });
+                        swal("Failed!", errors, { icon: "error", buttons: { confirm: { className: "btn btn-danger" } } });
                     } else {
                         swal({
                             title: "Success!",
                             text: response.message,
                             icon: "success",
-                            buttons: {
-                                confirm: {
-                                    text: "OK",
-                                    className: "btn btn-success"  // your custom CSS class
-                                }
-                            }
-                        })
+                            buttons: { confirm: { text: "OK", className: "btn btn-success" } }
+                        });
                     }
                     $('#userDisplay').text(response.username);
                     $('#acctsetting_current_password').val('');
@@ -707,30 +692,18 @@
                     $('#acctsetting_password_confirmation').val('');
 
                     $('#accountSettingModal').modal('hide');
-
                 },
                 error: function (xhr) {
                     let errors = xhr.responseJSON.errors;
-
                     if (typeof errors === 'object') {
-                        // If it's an object, try to get a string safely
                         errors = Object.values(errors)[0];
                         if (Array.isArray(errors)) {
                             errors = errors[0];
                         }
                     }
+                    errors = errors || "An error occurred";
 
-                    errors = errors || "An error occurred"; // fallback string if empty
-
-                    swal("Failed!", errors, {
-                        icon: "error",
-                        buttons: {
-                            confirm: {
-                                className: "btn btn-danger",
-                            },
-                        },
-                    });
-
+                    swal("Failed!", errors, { icon: "error", buttons: { confirm: { className: "btn btn-danger" } } });
                 },
                 complete: function() {
                     $btn.prop('disabled', false);
@@ -738,21 +711,18 @@
                 }
             });
         });
-    });
 
-
-    $(document).ready(function() {
-        // Fetch user data on modal show (or page load, depending on UX)
+        // Fetch user data on modal show
         $('#accountSettingModal').on('show.bs.modal', function() {
             $.ajax({
-                url: "{{ route('account.update') }}",
+                url: accountDisplayRoute,
                 method: "GET",
                 success: function(data) {
-                    console.log(data);
-                    $('#acctsetting_userName').val(data.username);
+                    $('#acctsetting_userName').val(data.user.username);
                     // Password fields remain empty for security reasons
-                    $('#password').val('');
-                    $('#change_password').val('');
+                    $('#acctsetting_current_password').val('');
+                    $('#acctsetting_new_password').val('');
+                    $('#acctsetting_password_confirmation').val('');
                 },
                 error: function() {
                     alert('Failed to fetch account data.');

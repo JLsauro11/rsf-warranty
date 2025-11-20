@@ -12,9 +12,10 @@ use App\Http\Controllers\ProductNameController;
 use App\Http\Controllers\CSRRS8Controller;
 use App\Http\Controllers\CSRSRFController;
 
-//Route::get('/', function () {
-//    return view('home.index');
-//});
+Route::get('/', function () {
+    return view('home.index'); // or your desired view
+})->middleware(['auth', 'role:admin']); // restrict access as needed
+
 
 Route::controller(RegistrationController::class)->group(function() {
     // Show form
@@ -57,14 +58,6 @@ Route::controller(CSRSRFController::class)->middleware(['auth', 'role:csr_srf'])
     Route::get('/csr_srf', 'index')->name('csr_srf.index');
     Route::get('/csr_srf/accountDisplay', 'accountDisplay')->name('csr_srf.accountDisplay');
 });
-
-
-//Route::group(['prefix' => 'product', 'as' => 'product.', 'middleware' => 'is_admin'], function(){
-//    Route::controller(ProductController::class)->group(function () {
-//        Route::get('', 'index')->name('index');
-//        Route::post('add', 'add')->name('add');
-//    });
-//});
 
 Route::group(['prefix' => 'product-name', 'as' => 'product-name.', 'middleware' => ['auth', 'role:admin']], function(){
     Route::controller(ProductNameController::class)->group(function () {

@@ -198,7 +198,7 @@
 
         var table = $("#rs8-warranty").DataTable({
             scrollX: true,
-            processing: true,
+//            processing: true,
             serverSide: false,
             ajax: {
                 url: ajaxUrl,
@@ -242,7 +242,16 @@
                         else if (data === 'approved') badgeClass = 'badge-success';
                         else if (data === 'disapproved') badgeClass = 'badge-danger';
 
-                        return `<div class="dropdown">
+                        // Use userRole variable defined in your scope to control rendering
+                        if (userRole !== 'admin') {
+                            return `<div class="dropdown">
+<button class="text-white btn btn-sm ${badgeClass} disabled" type="button"
+              id="statusDropdown${row.id}" aria-expanded="false" disabled>
+              ${data.charAt(0).toUpperCase() + data.slice(1)}
+          </button>`;
+                        } else {
+
+                            return `<div class="dropdown">
                         <button class="text-white btn btn-sm dropdown-toggle ${badgeClass}" type="button"
                                 id="statusDropdown${row.id}" data-bs-toggle="dropdown" aria-expanded="false" data-id="${row.id}">
                             ${data.charAt(0).toUpperCase() + data.slice(1)}
@@ -253,6 +262,7 @@
                             <li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
                         </ul>
                     </div>`;
+                        }
                     }
                 },
                 {
@@ -276,10 +286,16 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-
-                        return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
-                            '<i class="fa fa-trash" style="color: red;"></i>' +
-                            '</button>';
+                        // Assume userRole is defined in your JS scope
+                        if (userRole !== 'admin') {
+                            return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete" disabled style="cursor:not-allowed; opacity:0.5;">' +
+                                '<i class="fa fa-trash" style="color: gray;"></i>' +
+                                '</button>';
+                        } else {
+                            return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
+                                '<i class="fa fa-trash" style="color: red;"></i>' +
+                                '</button>';
+                        }
                     }
                 }
             ],
@@ -289,19 +305,13 @@
                     extend: 'pdfHtml5',
                     className: 'btn-pdf',
                     exportOptions: {
-                        columns: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+                        columns: [0,1,2,3,4,5,6,7,8,9,10], // Removed 11 and 12
                         format: {
                             body: function(data, row, column, node) {
-                                if(column === 11 || column === 12) {
+                                if (column === 10) { // Handle column 10 button text extraction as before
                                     var div = document.createElement('div');
                                     div.innerHTML = data;
-                                    var img = div.querySelector('img');
-                                    return img ? img.src : '';
-                                }
-                                if (column === 10) {
-                                    var div = document.createElement('div');
-                                    div.innerHTML = data;
-                                    var btn = div.querySelector('button.dropdown-toggle');
+                                    var btn = div.querySelector('button');
                                     return btn ? btn.textContent.trim() : data;
                                 }
                                 if (column === 9) {
@@ -321,47 +331,36 @@
                     customize: function(doc) {
                         doc.pageSize = 'A4';
                         doc.pageOrientation = 'landscape';
-                        doc.pageMargins = [10, 10, 10, 10];
-                        var tableBody = doc.content[1].table.body;
+                        doc.pageMargins = [5, 5, 5, 5];
 
+                        // Center align table headers
+                        doc.styles.tableHeader.alignment = 'center';
+                        doc.styles.tableHeader.margin = [5, 5, 5, 5]; // top and bottom padding for visual middle
+
+                        // Center align all table body cells with vertical padding for middle effect
+                        var tableBody = doc.content[1].table.body;
                         tableBody.forEach(function(row, rowIndex) {
+                            // Skip header row if desired or style it separately above
                             if (rowIndex === 0) return;
 
-                            var isOdd = rowIndex % 2 === 1;
-                            var bgColor = isOdd ? '#f3f3f3' : '#ffffff';
-
-                            // Apply background color and alignment to all cells
                             row.forEach(function(cell) {
                                 if (typeof cell === 'string') {
-                                    cell = { text: cell, alignment: 'center', fillColor: bgColor };
+                                    cell = { text: cell, alignment: 'center', margin: [5, 5, 5, 5] };
+                                    row[cell] = cell;
                                 } else {
                                     cell.alignment = 'center';
-                                    cell.fillColor = bgColor;
+                                    cell.margin = [5, 5, 5, 5]; // adds vertical spacing for middle alignment
                                 }
                             });
-
-                            // Replace image cells with base64 images having consistent background color
-                            if (yourBase64ReceiptImages[rowIndex - 1]) {
-                                row[11] = {
-                                    image: yourBase64ReceiptImages[rowIndex - 1],
-                                    width: 50,
-                                    alignment: 'center',
-                                    fillColor: bgColor
-                                };
-                            }
-                            if (yourBase64ProductImages[rowIndex - 1]) {
-                                row[12] = {
-                                    image: yourBase64ProductImages[rowIndex - 1],
-                                    width: 50,
-                                    alignment: 'center',
-                                    fillColor: bgColor
-                                };
-                            }
                         });
 
                         doc.defaultStyle.fontSize = 8;
                     }
+
+
                 }
+
+
             ]
         });
 
@@ -384,7 +383,6 @@
             var newStatus = $option.data('status');
             var $dropdownBtn = $option.closest('.dropdown').find('button');
 
-            console.log(id);
 
             var dropdown = bootstrap.Dropdown.getInstance($dropdownBtn[0]);
             if (dropdown) {
@@ -399,7 +397,7 @@
                 method: 'POST',
                 data: {
                     id: id,
-                    status: newStatus,
+                    status: newStatus
                 },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -444,10 +442,9 @@
                             .addClass(badgeClass)
                             .data('status', newStatus);
 
-                        // Close the dropdown menu manually after selection
-                        var dropdown = bootstrap.Dropdown.getInstance($dropdownBtn[0]);
-                        if (dropdown) {
-                            dropdown.hide();
+                        // Reload table data
+                        if (typeof table !== 'undefined') {
+                            table.ajax.reload(null, false);
                         }
                     }
                 },
@@ -472,7 +469,6 @@
                             },
                         },
                     });
-
                 },
                 complete: function() {
                     $dropdownBtn.prop('disabled', false);

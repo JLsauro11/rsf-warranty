@@ -100,11 +100,23 @@
             color: white !important;
         }
 
-        /* PDF red color */
         .btn-pdf {
             background-color: #d44646 !important; /* PDF Red */
             color: white !important;
+            font-weight: bold;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 10px 18px;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+
+        .btn-pdf:hover {
+            background-color: #b23636 !important; /* Slightly darker red for hover effect */
+        }
+
 
         /* Optional: Add hover color changes */
         .btn-excel:hover {
@@ -115,7 +127,20 @@
             background-color: #a83636 !important;
         }
 
-        
+        .btn.disabled, .btn:disabled, fieldset:disabled .btn {
+            background-color: #aeaeae;
+        }
+
+        button.delete-btn:disabled,
+        button.delete-btn.disabled {
+            background-color: transparent !important; /* Remove background */
+            border: none !important;                   /* Remove border */
+            box-shadow: none !important;               /* Remove shadow */
+            color: inherit !important;                 /* Keep original text color */
+            cursor: not-allowed !important;            /* Show disabled cursor */
+            opacity: 0.6 !important;                    /* Optional: lighter look */
+        }
+
 
 
     </style>
@@ -128,7 +153,7 @@
 
         <div class="container">
             <div class="page-inner">
-                    @include('layout.breadcrumbs')
+                @include('layout.breadcrumbs')
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
@@ -186,7 +211,7 @@
     } else if (userRole === 'csr_srf') {
         ajaxUrl = '{{ route("csr_srf.srf.index") }}';
     } else {
-        // Default fallback or redirect
+// Default fallback or redirect
         ajaxUrl = '{{ route("login") }}';
     }
 
@@ -197,23 +222,17 @@
 
         var table = $("#srf-warranty").DataTable({
             scrollX: true,
-            processing: true,
+//            processing: true,
             serverSide: false,
             ajax: {
                 url: ajaxUrl,
                 dataSrc: function(json) {
-                    // Map base64 images by the current order in data
+// Map base64 images by the current order in data
                     yourBase64ReceiptImages = json.data.map(item => item.receipt_image_base64 || '');
                     yourBase64ProductImages = json.data.map(item => item.product_image_base64 || '');
                     return json.data;
                 }
             },
-//            columnDefs: [
-//                {
-//                    targets: [10, 13], // zero-based index of Status and Action columns
-//                    visible: !(userRole === 'csr_rs8' || userRole === 'csr_srf')
-//                }
-//            ],
             columns: [
                 { data: 'first_name' },
                 { data: 'last_name' },
@@ -241,29 +260,35 @@
                         else if (data === 'approved') badgeClass = 'badge-success';
                         else if (data === 'disapproved') badgeClass = 'badge-danger';
 
-                        // Use userRole variable defined in your scope to control rendering
-                        if (userRole === 'csr_rs8' || userRole === 'csr_srf') {
+// Use userRole variable defined in your scope to control rendering
+                        if (userRole !== 'admin') {
                             return `<div class="dropdown">
-        <button class="text-white btn btn-sm ${badgeClass} disabled" type="button"
-                      id="statusDropdown${row.id}" aria-expanded="false" disabled>
-                      ${data.charAt(0).toUpperCase() + data.slice(1)}
-                  </button>`;
+<button class="text-white btn btn-sm ${badgeClass} disabled" type="button"
+id="statusDropdown${row.id}" aria-expanded="false" disabled>
+${data.charAt(0).toUpperCase() + data.slice(1)}
+</button>
+<ul class="dropdown-menu p-2" aria-labelledby="statusDropdown${row.id}">
+<li><a class="dropdown-item status-option badge-warning mb-1" href="#" data-id="${row.id}" data-status="pending">Pending</a></li>
+<li><a class="dropdown-item status-option badge-success mb-1" href="#" data-id="${row.id}" data-status="approved">Approved</a></li>
+<li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
+</ul>
+</div>`;
                         } else {
+
                             return `<div class="dropdown">
-        <button class="text-white btn btn-sm dropdown-toggle ${badgeClass}" type="button"
-                id="statusDropdown${row.id}" data-bs-toggle="dropdown" aria-expanded="false" data-id="${row.id}">
-            ${data.charAt(0).toUpperCase() + data.slice(1)}
-        </button>
-        <ul class="dropdown-menu p-2" aria-labelledby="statusDropdown${row.id}">
-            <li><a class="dropdown-item status-option badge-warning mb-1" href="#" data-id="${row.id}" data-status="pending">Pending</a></li>
-            <li><a class="dropdown-item status-option badge-success mb-1" href="#" data-id="${row.id}" data-status="approved">Approved</a></li>
-            <li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
-        </ul>
-      </div>`;
+<button class="text-white btn btn-sm dropdown-toggle ${badgeClass}" type="button"
+id="statusDropdown${row.id}" data-bs-toggle="dropdown" aria-expanded="false" data-id="${row.id}">
+${data.charAt(0).toUpperCase() + data.slice(1)}
+</button>
+<ul class="dropdown-menu p-2" aria-labelledby="statusDropdown${row.id}">
+<li><a class="dropdown-item status-option badge-warning mb-1" href="#" data-id="${row.id}" data-status="pending">Pending</a></li>
+<li><a class="dropdown-item status-option badge-success mb-1" href="#" data-id="${row.id}" data-status="approved">Approved</a></li>
+<li><a class="dropdown-item status-option badge-danger" href="#" data-id="${row.id}" data-status="disapproved">Disapproved</a></li>
+</ul>
+</div>`;
                         }
                     }
                 },
-
                 {
                     data: 'receipt_image_path',
                     render: function(data) {
@@ -285,17 +310,19 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        if (userRole === 'csr_rs8' || userRole === 'csr_srf') {
-                            return '<button class="btn delete-btn disabled" data-id="' + row.id + '" title="Delete">' +
+// Assume userRole is defined in your JS scope
+                        if (userRole !== 'admin') {
+                            return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete" disabled style="cursor:not-allowed; opacity:0.5;">' +
                                 '<i class="fa fa-trash" style="color: gray;"></i>' +
                                 '</button>';
-                        }else{
+                        } else {
                             return '<button class="btn delete-btn" data-id="' + row.id + '" title="Delete">' +
                                 '<i class="fa fa-trash" style="color: red;"></i>' +
                                 '</button>';
                         }
                     }
                 }
+
             ],
             dom: '<"d-flex justify-content-end align-items-center"Bf>rtip',
             buttons: [
@@ -303,19 +330,13 @@
                     extend: 'pdfHtml5',
                     className: 'btn-pdf',
                     exportOptions: {
-                        columns: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+                        columns: [0,1,2,3,4,5,6,7,8,9,10], // Removed 11 and 12
                         format: {
                             body: function(data, row, column, node) {
-                                if(column === 11 || column === 12) {
+                                if (column === 10) { // Handle column 10 button text extraction as before
                                     var div = document.createElement('div');
                                     div.innerHTML = data;
-                                    var img = div.querySelector('img');
-                                    return img ? img.src : '';
-                                }
-                                if (column === 10) {
-                                    var div = document.createElement('div');
-                                    div.innerHTML = data;
-                                    var btn = div.querySelector('button.dropdown-toggle');
+                                    var btn = div.querySelector('button');
                                     return btn ? btn.textContent.trim() : data;
                                 }
                                 if (column === 9) {
@@ -335,53 +356,42 @@
                     customize: function(doc) {
                         doc.pageSize = 'A4';
                         doc.pageOrientation = 'landscape';
-                        doc.pageMargins = [10, 10, 10, 10];
-                        var tableBody = doc.content[1].table.body;
+                        doc.pageMargins = [5, 5, 5, 5];
 
+                        // Center align table headers
+                        doc.styles.tableHeader.alignment = 'center';
+                        doc.styles.tableHeader.margin = [5, 5, 5, 5]; // top and bottom padding for visual middle
+
+                        // Center align all table body cells with vertical padding for middle effect
+                        var tableBody = doc.content[1].table.body;
                         tableBody.forEach(function(row, rowIndex) {
+                            // Skip header row if desired or style it separately above
                             if (rowIndex === 0) return;
 
-                            var isOdd = rowIndex % 2 === 1;
-                            var bgColor = isOdd ? '#f3f3f3' : '#ffffff';
-
-                            // Apply background color and alignment to all cells
                             row.forEach(function(cell) {
                                 if (typeof cell === 'string') {
-                                    cell = { text: cell, alignment: 'center', fillColor: bgColor };
+                                    cell = { text: cell, alignment: 'center', margin: [5, 5, 5, 5] };
+                                    row[cell] = cell;
                                 } else {
                                     cell.alignment = 'center';
-                                    cell.fillColor = bgColor;
+                                    cell.margin = [5, 5, 5, 5]; // adds vertical spacing for middle alignment
                                 }
                             });
-
-                            // Replace image cells with base64 images having consistent background color
-                            if (yourBase64ReceiptImages[rowIndex - 1]) {
-                                row[11] = {
-                                    image: yourBase64ReceiptImages[rowIndex - 1],
-                                    width: 50,
-                                    alignment: 'center',
-                                    fillColor: bgColor
-                                };
-                            }
-                            if (yourBase64ProductImages[rowIndex - 1]) {
-                                row[12] = {
-                                    image: yourBase64ProductImages[rowIndex - 1],
-                                    width: 50,
-                                    alignment: 'center',
-                                    fillColor: bgColor
-                                };
-                            }
                         });
 
                         doc.defaultStyle.fontSize = 8;
                     }
+
+
                 }
+
+
             ]
         });
 
         var updateStatusUrl = '{{ route("admin.srf.update-status") }}';
 
-        // Prevent non-admin roles from attempting this action client-side:
+// Prevent non-admin roles from attempting this action client-side:
         if (userRole !== 'admin') {
             updateStatusUrl = '';
         }
@@ -389,40 +399,43 @@
         $('#srf-warranty tbody').on('click', 'a.status-option', function(e) {
             e.preventDefault();
 
+            if (userRole === 'csr_rs8' || userRole === 'csr_srf') {
+                swal("Access Denied", "You do not have permission to change status.", "error");
+                return;
+            }
+
             var $option = $(this);
             var id = $option.data('id');
             var newStatus = $option.data('status');
             var $dropdownBtn = $option.closest('.dropdown').find('button');
-
-            console.log(id);
 
             var dropdown = bootstrap.Dropdown.getInstance($dropdownBtn[0]);
             if (dropdown) {
                 dropdown.hide();
             }
 
-            // Disable dropdown button while processing
+// Disable dropdown button while processing
             $dropdownBtn.prop('disabled', true);
 
             $.ajax({
-                url: updateStatusUrl,  // Your update status API endpoint
+                url: updateStatusUrl,
                 method: 'POST',
                 data: {
                     id: id,
-                    status: newStatus,
-                    _token: '{{ csrf_token() }}' // include CSRF token for Laravel
+                    status: newStatus
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     if (response.validation == true) {
-                        let errors = response.errors;
-
+                        var errors = response.errors;
                         if (typeof errors === 'object') {
                             errors = Object.values(errors)[0];
                             if (Array.isArray(errors)) {
                                 errors = errors[0];
                             }
                         }
-
                         errors = errors || "An error occurred"; // fallback string if empty
 
                         swal("Failed!", errors, {
@@ -434,42 +447,33 @@
                             },
                         });
                     } else {
-                        // Update button text, class, and data-status attribute
+// Update button text & class
                         var badgeClass;
+                        if (newStatus === 'pending') badgeClass = 'badge-warning';
+                        else if (newStatus === 'approved') badgeClass = 'badge-success';
+                        else if (newStatus === 'disapproved') badgeClass = 'badge-danger';
+                        else badgeClass = 'badge-secondary';
 
-                        if (newStatus === 'pending') {
-                            badgeClass = 'badge-warning';
-                        } else if (newStatus === 'approved') {
-                            badgeClass = 'badge-success';
-                        } else if (newStatus === 'disapproved') {
-                            badgeClass = 'badge-danger';
-                        } else {
-                            badgeClass = 'badge-secondary'; // fallback default
-                        }
                         $dropdownBtn.text(newStatus.charAt(0).toUpperCase() + newStatus.slice(1));
                         $dropdownBtn
                             .removeClass('badge-warning badge-success badge-secondary badge-danger')
                             .addClass(badgeClass)
                             .data('status', newStatus);
 
-                        // Close the dropdown menu manually after selection
-                        var dropdown = bootstrap.Dropdown.getInstance($dropdownBtn[0]);
-                        if (dropdown) {
-                            dropdown.hide();
+// Reload table data
+                        if (typeof table !== 'undefined') {
+                            table.ajax.reload(null, false);
                         }
                     }
                 },
-                error: function (xhr) {
-                    let errors = xhr.responseJSON.errors;
-
+                error: function(xhr) {
+                    var errors = xhr.responseJSON.errors;
                     if (typeof errors === 'object') {
-                        // If it's an object, try to get a string safely
                         errors = Object.values(errors)[0];
                         if (Array.isArray(errors)) {
                             errors = errors[0];
                         }
                     }
-
                     errors = errors || "An error occurred"; // fallback string if empty
 
                     swal("Failed!", errors, {
@@ -480,13 +484,13 @@
                             },
                         },
                     });
-
                 },
                 complete: function() {
                     $dropdownBtn.prop('disabled', false);
                 }
             });
         });
+
 
         var DeleteUrl = '{{ route("admin.srf.delete") }}';
 
@@ -562,7 +566,7 @@
                                     }
                                 });
 
-                                // Reload the datatable after delete success
+// Reload the datatable after delete success
                                 table.ajax.reload(null, false); // false to stay on the current page
                             }
                         },

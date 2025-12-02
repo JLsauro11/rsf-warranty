@@ -45,6 +45,12 @@
         color: #0d6efd;
     }
 
+    .navbar-brand {
+        height: 20px;
+        width: auto;
+    }
+
+
 </style>
 <div class="main-header">
     <div class="main-header-logo">
@@ -55,7 +61,7 @@
                         src="{{ asset('assets/img/rsf.png') }}"
                         alt="navbar brand"
                         class="navbar-brand"
-                        height="20"
+                        height="50"
                 />
             </a>
             <div class="nav-toggle">

@@ -12,10 +12,25 @@ class Rs8Controller extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $registrations = WarrantyRegistration::whereHas('product', function ($query) {
-                $query->where('product_code', 'rs8');
-            })->with(['product', 'productName'])->get();
 
+            // 1. Start with a query builder instance
+            $query = WarrantyRegistration::whereHas('product', function ($q) {
+                $q->where('product_code', 'rs8');
+            })->with(['product', 'productName']);
+
+            // 2. Apply date range filtering on the same $query
+            if ($request->filled('from_date')) {
+                $query->whereDate('purchase_date', '>=', $request->from_date);
+            }
+
+            if ($request->filled('to_date')) {
+                $query->whereDate('purchase_date', '<=', $request->to_date);
+            }
+
+            // 3. Execute the query
+            $registrations = $query->get();
+
+            // 4. Your existing map stays the same
             $data = $registrations->map(function ($registration) {
                 $receiptImagePath = $registration->receipt_image_path ? public_path(ltrim($registration->receipt_image_path, '/')) : null;
                 $productImagePath = $registration->product_image_path ? public_path(ltrim($registration->product_image_path, '/')) : null;
@@ -60,6 +75,7 @@ class Rs8Controller extends Controller
 
         return view('rs8.index');
     }
+
 
 
 

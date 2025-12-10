@@ -11,9 +11,21 @@ class SRFController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $registrations = WarrantyRegistration::whereHas('product', function ($query) {
-                $query->where('product_code', 'srf');
-            })->with(['product', 'productName'])->get();
+            $query = WarrantyRegistration::whereHas('product', function ($q) {
+                $q->where('product_code', 'srf');
+            })->with(['product', 'productName']);
+
+            // 2. Apply date range filtering on the same $query
+            if ($request->filled('from_date')) {
+                $query->whereDate('purchase_date', '>=', $request->from_date);
+            }
+
+            if ($request->filled('to_date')) {
+                $query->whereDate('purchase_date', '<=', $request->to_date);
+            }
+
+            // 3. Execute the query
+            $registrations = $query->get();
 
             $data = $registrations->map(function ($registration) {
                 $receiptImagePath = $registration->receipt_image_path ? public_path(ltrim($registration->receipt_image_path, '/')) : null;

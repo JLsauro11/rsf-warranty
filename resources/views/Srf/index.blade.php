@@ -141,6 +141,14 @@
             opacity: 0.6 !important;                    /* Optional: lighter look */
         }
 
+        div.dt-buttons>.dt-button, div.dt-buttons>div.dt-button-split .dt-button {
+            margin-bottom: 0;
+            font-size: 10px;
+            padding: 7px 13px;
+            font-weight: 500;
+            border-radius: 3px;
+        }
+
 
 
     </style>
@@ -226,10 +234,12 @@
             serverSide: false,
             ajax: {
                 url: ajaxUrl,
+                data: function(d) {
+                    // Add date range parameters to AJAX request
+                    d.from_date = $('#fromDate').val();
+                    d.to_date = $('#toDate').val();
+                },
                 dataSrc: function(json) {
-// Map base64 images by the current order in data
-                    yourBase64ReceiptImages = json.data.map(item => item.receipt_image_base64 || '');
-                    yourBase64ProductImages = json.data.map(item => item.product_image_base64 || '');
                     return json.data;
                 }
             },
@@ -324,7 +334,12 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
                 }
 
             ],
-            dom: '<"d-flex justify-content-end align-items-center"Bf>rtip',
+            dom:
+            // single row: buttons + search
+            '<"d-flex flex-wrap align-items-end justify-content-between mb-3"' +
+            '<"d-flex align-items-end gap-2"B>' +        // PDF button
+            '<"dataTables_filter ms-auto"f>' +           // Search
+            '>rtip',
             buttons: [
                 {
                     extend: 'pdfHtml5',
@@ -332,6 +347,9 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
                     exportOptions: {
                         columns: [0,1,2,3,4,5,6,7,8,9,10], // Removed 11 and 12
                         format: {
+                            header: function (d, columnIdx) {
+                                return d;
+                            },
                             body: function(data, row, column, node) {
                                 if (column === 10) { // Handle column 10 button text extraction as before
                                     var div = document.createElement('div');
@@ -354,8 +372,24 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
                         }
                     },
                     customize: function(doc) {
-                        // Remove the default title if any
-                        doc.content.splice(0, 1); // removes the first element which is usually the title text
+                        // Add date range to PDF title if filters are applied
+                        var fromDate = $('#fromDate').val();
+                        var toDate = $('#toDate').val();
+                        var dateRangeTitle = '';
+
+                        if (fromDate || toDate) {
+                            dateRangeTitle = ' (';
+                            if (fromDate && toDate) {
+                                dateRangeTitle += `Date Range: ${fromDate} to ${toDate}`;
+                            } else if (fromDate) {
+                                dateRangeTitle += `From: ${fromDate}`;
+                            } else {
+                                dateRangeTitle += `To: ${toDate}`;
+                            }
+                            dateRangeTitle += ')';
+                        }
+
+                        doc.content.splice(0, 1);
 
                         // Add logo to the header
                         // Replace 'data:image/png;base64,...' with your actual base64 image string
@@ -395,6 +429,45 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
 
 
             ]
+        });
+
+        const dateFilterHtml = `
+  <div id="dateFilterWrapper" class="d-flex align-items-end gap-2 me-6">
+    <div>
+      <label class="form-label mb-1">From Date</label>
+      <input type="date" class="form-control form-control-sm" id="fromDate">
+    </div>
+    <div>
+      <label class="form-label mb-1">To Date</label>
+      <input type="date" class="form-control form-control-sm" id="toDate">
+    </div>
+    <div class="pb-0">
+      <button type="button" class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="clearFilterBtn">Clear</button>
+    </div>
+  </div>
+`;
+
+// Resulting order: date range -> PDF -> search
+        $('#srf-warranty_wrapper .dt-buttons').before(dateFilterHtml);
+
+        // Filter button click handler
+        $('#filterBtn').on('click', function() {
+            table.ajax.reload();
+        });
+
+        // Clear filter button handler
+        $('#clearFilterBtn').on('click', function() {
+            $('#fromDate').val('');
+            $('#toDate').val('');
+            table.ajax.reload();
+        });
+
+        // Enter key support for date inputs
+        $('#fromDate, #toDate').on('keypress', function(e) {
+            if (e.which === 13) {
+                $('#filterBtn').click();
+            }
         });
 
         var updateStatusUrl = '{{ route("admin.srf.update-status") }}';

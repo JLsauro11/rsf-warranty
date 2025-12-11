@@ -90,7 +90,7 @@
         }
 
         .dataTables_filter {
-            margin-left: 10px; /* space between buttons and search */
+            margin-left: 0; /* space between buttons and search */
             margin-bottom: 0;  /* align vertically */
         }
 
@@ -141,12 +141,21 @@
             opacity: 0.6 !important;                    /* Optional: lighter look */
         }
 
-        div.dt-buttons>.dt-button, div.dt-buttons>div.dt-button-split .dt-button {
+        div.dt-buttons>.dt-button {
             margin-bottom: 0;
             font-size: 10px;
             padding: 7px 13px;
             font-weight: 500;
             border-radius: 3px;
+            /*margin-left: -6px !important;*/
+        }
+
+        @media screen and (max-width: 767px) {
+            div.dataTables_wrapper div.dataTables_length {
+                text-align: center;
+                margin-top: 0;
+                margin-bottom: 0;
+            }
         }
 
 
@@ -335,10 +344,12 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
 
             ],
             dom:
-            // single row: buttons + search
-            '<"d-flex flex-wrap align-items-end justify-content-between mb-3"' +
-            '<"d-flex align-items-end gap-2"B>' +        // PDF button
-            '<"dataTables_filter ms-auto"f>' +           // Search
+            // One row container
+            '<"dt-top-row d-flex flex-wrap align-items-end justify-content-between"' +
+            // Left block: length + date range + PDF
+            '<"dt-left d-flex flex-wrap align-items-end gap-3"lB>' +
+            // Right block: search
+            '<"dt-right"f>' +
             '>rtip',
             buttons: [
                 {
@@ -432,21 +443,26 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
         });
 
         const dateFilterHtml = `
-  <div id="dateFilterWrapper" class="d-flex align-items-end gap-2 me-6">
-    <div>
+  <div id="dateFilterWrapper"
+       class="d-flex flex-wrap align-items-end gap-2">
+
+    <div class="d-flex flex-column">
       <label class="form-label mb-1">From Date</label>
       <input type="date" class="form-control form-control-sm" id="fromDate">
     </div>
-    <div>
+
+    <div class="d-flex flex-column">
       <label class="form-label mb-1">To Date</label>
       <input type="date" class="form-control form-control-sm" id="toDate">
     </div>
-    <div class="pb-0">
+
+    <div class="d-flex align-items-end gap-1">
       <button type="button" class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
       <button type="button" class="btn btn-secondary btn-sm" id="clearFilterBtn">Clear</button>
     </div>
   </div>
 `;
+
 
 // Resulting order: date range -> PDF -> search
         $('#srf-warranty_wrapper .dt-buttons').before(dateFilterHtml);

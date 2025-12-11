@@ -11,6 +11,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ProductNameController;
 use App\Http\Controllers\CSRRS8Controller;
 use App\Http\Controllers\CSRSRFController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('home.index'); // or your desired view
@@ -66,7 +67,20 @@ Route::group(['prefix' => 'product-name', 'as' => 'product-name.', 'middleware' 
         Route::get('trash', 'trash')->name('trash');
         Route::post('restore', 'restore')->name('restore');
         Route::get('edit/{id}', 'edit')->name('edit');
-        Route::post('update', 'update')->name('update');
+        Route::put('update/{id}', 'update')->name('update');
+        Route::post('delete', 'delete')->name('delete');
+
+    });
+});
+
+Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => ['auth', 'role:admin']], function(){
+    Route::controller(UserController::class)->group(function () {
+        Route::get('', 'index')->name('index');
+        Route::post('add', 'add')->name('add');
+//        Route::get('trash', 'trash')->name('trash');
+        Route::post('restore', 'restore')->name('restore');
+        Route::get('edit/{id}', 'edit')->name('edit');
+        Route::put('update/{id}', 'update')->name('update');
         Route::post('delete', 'delete')->name('delete');
 
     });

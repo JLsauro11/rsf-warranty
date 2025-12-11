@@ -34,13 +34,11 @@ class ProductNameController extends Controller
         return response()->json($productName);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id) // Add $id parameter
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:product_name,id',
-            'model_code' => 'required|string|max:255',
-            'product_id' => 'required|exists:product,id',
-            // Add other fields validation if needed
+            'model_code' => ['required', 'string', 'max:255'],
+            'product_id' => ['required', 'exists:products,id'], // Fixed table name
         ]);
 
         if ($validator->fails()) {
@@ -51,19 +49,19 @@ class ProductNameController extends Controller
             ], 422);
         }
 
-        $productName = ProductName::findOrFail($request->id);
-        $productName->model_code = $request->model_code;
-        $productName->model_label = strtoupper($request->input('model_code'));
-        $productName->product_id = $request->product_id;
-        // Update other fields as needed
-        $productName->save();
+        $productName = ProductName::findOrFail($id); // Use route $id
+        $productName->update([
+            'model_code' => $request->model_code,
+            'model_label' => strtoupper($request->model_code),
+            'product_id' => $request->product_id,
+        ]);
 
         return response()->json([
             'status' => true,
-            'validation' => false,
             'message' => 'Product name updated successfully!',
         ]);
     }
+
 
 
     public function trash(Request $request)

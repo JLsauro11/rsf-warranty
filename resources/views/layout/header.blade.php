@@ -463,8 +463,6 @@
                                     placeholder="Enter your username"
 
                             />
-                            <div class="valid-feedback"></div>
-                            <div class="invalid-feedback"></div>
                         </div>
                     </div>
 
@@ -489,8 +487,6 @@
                         <i id="acctsetting_current_password_eye" class="fas fa-eye"></i>
                     </span>
                             </div>
-                            <div class="valid-feedback"></div>
-                            <div class="invalid-feedback"></div>
                         </div>
 
                         <div class="form-group mb-3">
@@ -507,8 +503,6 @@
                         <i id="acctsetting_new_password_eye" class="fas fa-eye"></i>
                     </span>
                             </div>
-                            <div class="valid-feedback"></div>
-                            <div class="invalid-feedback"></div>
                         </div>
 
                         <div class="form-group mb-3">
@@ -519,14 +513,12 @@
                                         id="acctsetting_password_confirmation"
                                         name="new_password_confirmation"
                                         class="form-control"
-                                        placeholder="Enter New Password"
+                                        placeholder="Confirm Password"
                                 />
                                 <span class="input-icon-addon" onclick="password_toggler('acctsetting_password_confirmation')">
                         <i id="acctsetting_password_confirmation_eye" class="fas fa-eye"></i>
                     </span>
                             </div>
-                            <div class="valid-feedback"></div>
-                            <div class="invalid-feedback"></div>
                         </div>
                     </div>
                 </div>

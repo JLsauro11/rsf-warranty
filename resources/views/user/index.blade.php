@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', 'Product Names')
+@section('title', 'Manage Users')
 
 @section('content')
 
@@ -24,18 +24,19 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="card-title mb-0">Product Names</h4>
-                                <button id="btn-add-productName" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductNameModal">
-                                    <i class="fas fa-plus me-1"></i> Add Product Name
+                                <h4 class="card-title mb-0">Manage Users</h4>
+                                <button id="btn-add-user" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                    <i class="fas fa-plus me-1"></i> Add User
                                 </button>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table id="product-name-table" class=" nowrap display table table-striped table-hover">
+                                    <table id="addUser-table" class=" nowrap display table table-striped table-hover">
                                         <thead>
                                         <tr>
-                                            <th>Product Name</th>
-                                            <th>Product</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
                                             <th>Created At</th>
                                             <th>Updated At</th>
                                             <th>Action</th>
@@ -57,71 +58,111 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addProductNameModal" tabindex="-1" aria-labelledby="addProductNameModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form id="add-productName-form" method="post" enctype="multipart/form-data" class="modal-content">
+            <form id="add-user-form" method="post" enctype="multipart/form-data" class="modal-content">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addProductModalLabel">Add Product Name</h5>
+                    <h5 class="modal-title" id="addUserModalLabel">Add Product Name</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="model_code" class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="model_code" name="model_code" placeholder="Enter Product Name">
+                        <label for="model_code" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username">
                     </div>
                     <div class="mb-3">
-                        <label for="product_id" class="form-label">Select Product</label>
-                        <select class="form-select" id="product_id" name="product_id">
-                            <option value="" selected disabled>Select a product</option>
-                            @foreach($products as $product)
-                                <option value="{{ $product->id }}">{{ $product->product_label }}</option>
-                            @endforeach
+                        <label for="model_code" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="email" name="email" placeholder="Enter Email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="role_id" class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" id="role_id" name="role_id" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="csr_rs8">CSR_RS8</option>
+                            <option value="csr_srf">CSR_SRF</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="user_password" class="form-label">Password</label>
+                        <div class="input-icon">
+                            <input
+                                    type="password"
+                                    id="user_password"
+                                    name="user_password"
+                                    class="form-control"
+                                    placeholder="Enter Password"
+                            />
+                            <span class="input-icon-addon" onclick="password_toggler('user_password')">
+                        <i id="user_password_eye" class="fas fa-eye"></i>
+                    </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="user_password_confirmation" class="form-label">Confirm Password</label>
+                        <div class="input-icon">
+                            <input
+                                    type="password"
+                                    id="user_password_confirmation"
+                                    name="user_password_confirmation"
+                                    class="form-control"
+                                    placeholder="Confirm Password"
+                            />
+                            <span class="input-icon-addon" onclick="password_toggler('user_password_confirmation')">
+                        <i id="user_password_confirmation_eye" class="fas fa-eye"></i>
+                    </span>
+                        </div>
                     </div>
                     <!-- Add more fields as needed -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary productName-btn">Save Product Name</button>
+                    <button type="submit" class="btn btn-primary addUser-btn">Save User</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="modal fade" id="editProductNameModal" tabindex="-1" role="dialog" aria-labelledby="editProductNameModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <form id="edit-productName-form" method="post" enctype="multipart/form-data">
+            <form id="edit-user-form" method="put" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
                 <input type="hidden" name="id" id="edit_id">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editProductNameModalLabel">Edit Product Name</h5>
+                        <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="edit_model_code" class="form-label">Model Label</label>
-                            <input type="text" class="form-control" id="edit_model_code" name="model_code" required>
+                            <label for="edit_username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="edit_username" name="username" placeholder="Enter Username" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_product_id" class="form-label">Product</label>
-                            <select class="form-control" id="edit_product_id" name="product_id" required>
-                                @foreach($products as $product)
-                                    <option value="{{ $product->id }}">{{ $product->product_label }}</option>
-                                @endforeach
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit_email" name="email" placeholder="Enter Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_role" class="form-label">Role <span class="text-danger">*</span></label>
+                            <select class="form-select" id="edit_role" name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="admin">admin</option>
+                                <option value="csr_rs8">csr_rs8</option>
+                                <option value="csr_srf">csr_srf</option>
                             </select>
                         </div>
-                        <!-- Add other fields as needed -->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary editproductName-btn">Update</button>
+                        <button type="submit" class="btn btn-primary editUser-btn">Update User</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
 
 
 @endsection
@@ -129,19 +170,28 @@
 @push ('js')
 
 <script>
+
+    function password_toggler(selector){
+        $('#'+selector+'_eye').toggleClass('fa-eye fa-eye-slash')
+        $('#'+selector).attr('type', function(index, attr){
+            return attr == 'text' ? 'password' : 'text';
+        });
+    }
+
     $(document).ready(function () {
 
-        $('#addProductNameModal').on('hidden.bs.modal', function () {
+        $('#addUserModal').on('hidden.bs.modal', function () {
             $(this).find('form')[0].reset();
         });
 
-        $("#product-name-table").DataTable({
+        $("#addUser-table").DataTable({
             processing: true,
             serverSide: false,
-            ajax: "{{ route('product-name.index') }}",
+            ajax: "{{ route('user.index') }}",
             columns: [
-                { data: 'model_label' },
-                { data: 'product.product_label' },
+                { data: 'username' },
+                { data: 'email' },
+                { data: 'role' },
                 {
                     data: 'created_at',
                     render: function(data) {
@@ -202,30 +252,34 @@
             ]
         });
 
-        {{--var editUrlTemplate = "{{ url('product-name/edit') }}/:id";--}}
-        const editUrlTemplate = "{{ route('product-name.edit', ':id') }}";
-        const updateUrlTemplate = "{{ route('product-name.update', ':id') }}";
+// Define template once
+        const editUrlTemplate = "{{ route('user.edit', ':id') }}";
 
-        $('#product-name-table tbody').on('click', 'button.edit-btn', function () {
-            var id = $(this).data('id');
-            var editUrl = editUrlTemplate.replace(':id', id);
+        $('#addUser-table tbody').on('click', 'button.edit-btn', function () {
+            const $btn = $(this);
+            const id = $btn.data('id');
+            const editUrl = editUrlTemplate.replace(':id', id);
 
             $.ajax({
                 url: editUrl,
                 method: 'GET',
-                success: function (response) {
-                    $('#edit_id').val(response.id);
-                    $('#edit_model_code').val(response.model_code);
-                    $('#edit_product_id').val(response.product_id);
-                    $('#editProductNameModal').modal('show');
+                success: function (user) {
+                    $('#edit_id').val(user.id);
+                    $('#edit_username').val(user.username);
+                    $('#edit_email').val(user.email);
+                    $('#edit_role').val(user.role);
+                    $('#editUserModal').modal('show');
                 },
                 error: function () {
-                    swal("Error!", "Could not fetch data.", "error");
+                    Swal.fire('Error!', 'Could not fetch user data.', 'error');
                 }
             });
         });
 
-        $('#edit-productName-form').on('submit', function (e) {
+        const updateUrlTemplate = "{{ route('user.update', ':id') }}";
+
+
+        $('#edit-user-form').on('submit', function (e) {
             e.preventDefault();
 
             var $form = $(this);
@@ -233,7 +287,8 @@
             const id = $('#edit_id').val(); // ✅ Get from hidden field
             const updateUrl = updateUrlTemplate.replace(':id', id);
 
-            var $btn = $form.find('.editproductName-btn');
+
+            var $btn = $form.find('.editUser-btn');
             $btn.prop('disabled', true);
             $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');
 
@@ -281,9 +336,9 @@
                     }
 
 
-                    $('#editProductNameModal').modal('hide');
-                    $('#edit-productName-form')[0].reset();
-                    $('#product-name-table').DataTable().ajax.reload(null, false);
+                    $('#editUserModal').modal('hide');
+                    $('#edit-user-form')[0].reset();
+                    $('#addUser-table').DataTable().ajax.reload(null, false);
 
                 },
                 error: function (xhr) {
@@ -318,17 +373,17 @@
 
 
 
-        $('#add-productName-form').on('submit', function(e) {
+        $('#add-user-form').on('submit', function(e) {
             e.preventDefault();
 
-            var $btn = $('.productName-btn');
+            var $btn = $('.addUser-btn');
             $btn.prop('disabled', true);
             $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
 
             let formData = $(this).serialize(); // serialize form data
 
             $.ajax({
-                url: "{{ route('product-name.add') }}",  // your POST route to save product
+                url: "{{ route('user.add') }}",  // your POST route to save product
                 method: 'POST',
                 data: formData,
                 headers: {
@@ -369,11 +424,11 @@
                             }
                         })
 // Assuming response indicates success
-                        $('#addProductNameModal').modal('hide');   // hide modal
-                        $('#add-productName-form')[0].reset();     // reset form fields
+                        $('#addUserModal').modal('hide');   // hide modal
+                        $('#add-user-form')[0].reset();     // reset form fields
 
 // Reload the datatable to show new product
-                        $('#product-name-table').DataTable().ajax.reload();
+                        $('#addUser-table').DataTable().ajax.reload();
                     }
 
 
@@ -409,12 +464,12 @@
             });
         });
 
-        $('#product-name-table tbody').on('click', 'button.delete-btn', function(e) {
+        $('#addUser-table tbody').on('click', 'button.delete-btn', function(e) {
             e.preventDefault();
 
             var $btn = $(this);
             var id = $btn.data('id');
-            var table = $('#product-name-table').DataTable(); // initialize DataTable instance
+            var table = $('#addUser-table').DataTable(); // initialize DataTable instance
 
             swal({
                 title: "Are you sure?",
@@ -436,7 +491,7 @@
                     $btn.prop('disabled', true);
 
                     $.ajax({
-                        url: '{{ route("product-name.delete") }}',
+                        url: '{{ route("user.delete") }}',
                         method: 'POST',
                         data: {
                             id: id,

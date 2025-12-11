@@ -65,7 +65,7 @@
                     <span class="sidebar-mini-icon">
                       <i class="fa fa-ellipsis-h"></i>
                     </span>
-                    <h4 class="text-section">Products Management</h4>
+                    <h4 class="text-section">Users & Products Management</h4>
                 </li>
 
                 <li class="nav-item {{ request()->routeIs('product-name.index') ? 'active' : '' }}">
@@ -74,6 +74,17 @@
                         <p>Product Names</p>
                     </a>
                 </li>
+
+                        <li class="nav-item {{ request()->routeIs('user.index') ? 'active' : '' }}">
+                            <a href="{{ route('user.index') }}">
+                                <i class="fas fa-user"></i>
+                                <p>Manage Users</p>
+                            </a>
+                        </li>
+
+
+
+
                 @endif
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">

@@ -10,6 +10,20 @@
         justify-content: center; /* centers horizontally */
         align-items: center;    /* centers vertically if height applies */
     }
+
+    .admin-brand {
+        height: 25px !important;
+        width: 170px !important;
+    }
+    .csr_rs8-brand {
+        height: 25px !important;
+        width: auto !important;
+    }
+    .csr_srf-brand {
+        height: 20px !important;
+        width: auto !important;
+    }
+
 </style>
 
 @php
@@ -26,14 +40,17 @@
     <div class="sidebar-logo">
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">
-            <a href="{{ route(auth()->user()->role == 'admin' ? 'admin.index' : (auth()->user()->role == 'csr_rs8' ? 'csr_rs8.index' : 'csr_srf.index')) }}" class="logo">
+            <a href="{{ route(auth()->user()->role == 'admin' ? 'admin.index' : (auth()->user()->role == 'csr_rs8' ? 'csr_rs8.index' : 'csr_srf.index')) }}"
+               class="logo">
                 <img
-                        src="{{ asset('assets/img/' . (auth()->user()->role == 'admin' ? 'rs8xsrf.png' : (auth()->user()->role == 'csr_srf' ? 'rsf.png' : 'rs8.png')) ) }}"
+                        src="{{ asset('assets/img/' . (auth()->user()->role == 'admin' ? 'rs8xsrf.png' : (auth()->user()->role == 'csr_rs8' ? 'rs8.png' : 'rsf.png'))) }}"
                         alt="navbar brand"
-                        class="navbar-brand"
+                        class="navbar-brand {{ auth()->user()->role == 'admin' ? 'admin-brand' : (auth()->user()->role == 'csr_rs8' ? 'csr_rs8-brand' : 'csr_srf-brand') }}"
                         height="50"
                 />
             </a>
+
+
             <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
                     <i class="gg-menu-right"></i>

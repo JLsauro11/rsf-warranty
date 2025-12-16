@@ -24,27 +24,5 @@ class UserSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        User::create([
-            'username' => 'CSR_RS8',
-            'email' => 'csr_rs8@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),
-            'role' => 'csr_rs8',
-            'remember_token' => \Str::random(10),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        User::create([
-            'username' => 'CSR_SRF',
-            'email' => 'csr_srf@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),
-            'role' => 'csr_srf',
-            'remember_token' => \Str::random(10),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
     }
 }

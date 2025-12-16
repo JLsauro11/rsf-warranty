@@ -464,6 +464,17 @@
 
                             />
                         </div>
+                        <div class="mb-3">
+                            <label for="acctsetting_email" class="form-label">Email</label>
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="acctsetting_email"
+                                    name="email"
+                                    placeholder="Enter your Email"
+
+                            />
+                        </div>
                     </div>
 
                     <!-- Password Settings Toggle -->
@@ -689,6 +700,8 @@
                     $('#acctsetting_current_password').val('');
                     $('#acctsetting_new_password').val('');
                     $('#acctsetting_password_confirmation').val('');
+                    $('#username').text(response.username);
+                    $('#email').text(response.email);
 
                     $('#accountSettingModal').modal('hide');
                 },
@@ -718,6 +731,7 @@
                 method: "GET",
                 success: function(data) {
                     $('#acctsetting_userName').val(data.user.username);
+                    $('#acctsetting_email').val(data.user.email);
                     // Password fields remain empty for security reasons
                     $('#acctsetting_current_password').val('');
                     $('#acctsetting_new_password').val('');

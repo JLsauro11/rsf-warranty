@@ -16,9 +16,10 @@ class AccountController extends Controller
             // Custom validation rules
             $rules = [
                 'username' => 'required|string|max:255|unique:users,username,' . $request->user()->id,
+                'email' => 'required|email|max:255|unique:users,email,' . $request->user()->id,
             ];
 
-            // Only validate password fields if current_password is provided (user wants to change password)
+            // Only validate password fields if current_password is provided
             if ($request->filled('current_password')) {
                 $rules['current_password'] = ['required'];
                 $rules['new_password'] = ['required', 'string', 'min:8', 'confirmed'];
@@ -35,8 +36,9 @@ class AccountController extends Controller
 
             $user = $request->user();
 
-            // Update username
+            // Update username and email
             $user->username = $request->username;
+            $user->email = $request->email;
 
             // If changing password, verify current password before updating
             if ($request->filled('current_password')) {
@@ -56,6 +58,7 @@ class AccountController extends Controller
             return response()->json([
                 'validation' => false,
                 'username' => $user->username,
+                'email' => $user->email,
                 'message' => 'Account updated successfully.',
             ]);
         }
@@ -64,7 +67,8 @@ class AccountController extends Controller
 
         return response()->json([
             'username' => $user->username,
+            'email' => $user->email,
         ]);
-
     }
+
 }

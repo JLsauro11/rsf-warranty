@@ -43,7 +43,7 @@ return [
             'port' => env('MAIL_PORT', 587),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME', 'saurojhonlewis@gmail.com'),
-            'password' => env('MAIL_PASSWORD', 'xsmtpsib-03fc58fded5de4d730fb6c72cbf01ec80ebedae687eba241f3773f0e21f11966-T1S1R1gUjWAEZxhX'),
+            'password' => env('MAIL_PASSWORD', 'xsmtpsib-03fc58fded5de4d730fb6c72cbf01ec80ebedae687eba241f3773f0e21f11966-VjkqZ3kPnHWqvvhB'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],

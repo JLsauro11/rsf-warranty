@@ -63,6 +63,7 @@
             processing: true,
             serverSide: false,
             ajax: "{{ route('product-name.trash') }}",
+            order: [[2, 'desc']],
             columns: [
                 { data: 'model_label' },
                 { data: 'product.product_label' },

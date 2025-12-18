@@ -14,7 +14,8 @@ class ProductNameController extends Controller
         if ($request->ajax()) {
             // Get all product names not soft deleted with eager loaded product
             $productNames = ProductName::whereNull('deleted_at')
-                ->with('product') // eager load related product
+                ->with('product')
+                ->orderBy('created_at', 'desc')// eager load related product
                 ->get();
 
             // Return entire collection as JSON data
@@ -70,6 +71,7 @@ class ProductNameController extends Controller
             // Get all soft deleted product names with their related products
             $productNames = ProductName::onlyTrashed()
                 ->with('product')
+                ->orderBy('deleted_at', 'desc')
                 ->get();
 
             // Return JSON data for datatable or frontend

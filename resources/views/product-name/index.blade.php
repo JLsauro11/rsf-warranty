@@ -139,6 +139,7 @@
             processing: true,
             serverSide: false,
             ajax: "{{ route('product-name.index') }}",
+            order: [[2, 'desc']],
             columns: [
                 { data: 'model_label' },
                 { data: 'product.product_label' },

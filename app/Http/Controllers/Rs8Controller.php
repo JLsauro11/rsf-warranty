@@ -16,7 +16,12 @@ class Rs8Controller extends Controller
             // 1. Start with a query builder instance
             $query = WarrantyRegistration::whereHas('product', function ($q) {
                 $q->where('product_code', 'rs8');
-            })->with(['product', 'productName']);
+            })->with([
+                'product',
+                'productName' => function ($q) {
+                    $q->withTrashed();  // Includes soft-deleted productName records
+                }
+            ]);
 
             // 2. Apply date range filtering on the same $query
             if ($request->filled('from_date')) {

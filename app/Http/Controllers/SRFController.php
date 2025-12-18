@@ -13,7 +13,12 @@ class SRFController extends Controller
         if ($request->ajax()) {
             $query = WarrantyRegistration::whereHas('product', function ($q) {
                 $q->where('product_code', 'srf');
-            })->with(['product', 'productName']);
+            })->with([
+                'product',
+                'productName' => function ($q) {
+                    $q->withTrashed();  // Includes soft-deleted productName records
+                }
+            ]);
 
             // 2. Apply date range filtering on the same $query
             if ($request->filled('from_date')) {

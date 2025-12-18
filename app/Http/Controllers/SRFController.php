@@ -62,6 +62,7 @@ class SRFController extends Controller
                     'product_name' => $registration->productName ? $registration->productName->model_label : null,
                     'serial_no' => $registration->serial_no,
                     'purchase_date' => $registration->purchase_date ? $registration->purchase_date->format('Y-m-d') : '',
+                    'created_at' => $registration->created_at ? $registration->created_at->format('Y-m-d H:i:s') : '',
                     'receipt_no' => $registration->receipt_no,
                     'receipt_image_path' => $registration->receipt_image_path ? url(ltrim($registration->receipt_image_path, '/')) : null,
                     'product_image_path' => $registration->product_image_path ? url(ltrim($registration->product_image_path, '/')) : null,

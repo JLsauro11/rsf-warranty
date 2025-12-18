@@ -195,6 +195,7 @@
                                             <th>Facebook Account/Page Link</th>
                                             <th>Receipt Image</th>
                                             <th>Product Image</th>
+                                            <th>Created At</th>
                                             {{--<th>Video</th>--}}
                                             <th>Action</th>
 
@@ -252,10 +253,15 @@
                     return json.data;
                 }
             },
+            order: [[13, 'desc']],
             columnDefs: [
                 {
-                    targets: [9, 13], // zero-based index of Status and Action columns
+                    targets: [9, 14], // zero-based index of Status and Action columns
                     visible: !(userRole === 'csr_rs8' || userRole === 'csr_srf')
+                },
+                {
+                    targets: 13,  // created_at column
+                    visible: false  // Always hidden
                 }
             ],
             columns: [
@@ -330,6 +336,7 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
                             : '';
                     }
                 },
+                { data: 'created_at' },
                 {
                     data: null,
                     orderable: false,

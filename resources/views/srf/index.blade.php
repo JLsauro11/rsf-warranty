@@ -191,8 +191,8 @@
                                             <th>Purchase Date</th>
                                             <th>Receipt No</th>
                                             <th>Store Name</th>
-                                            <th>Facebook Account/Page Link</th>
                                             <th>Status</th>
+                                            <th>Facebook Account/Page Link</th>
                                             <th>Receipt Image</th>
                                             <th>Product Image</th>
                                             {{--<th>Video</th>--}}
@@ -252,6 +252,12 @@
                     return json.data;
                 }
             },
+            columnDefs: [
+                {
+                    targets: [9, 13], // zero-based index of Status and Action columns
+                    visible: !(userRole === 'csr_rs8' || userRole === 'csr_srf')
+                }
+            ],
             columns: [
                 { data: 'first_name' },
                 { data: 'last_name' },
@@ -262,14 +268,6 @@
                 { data: 'purchase_date' },
                 { data: 'receipt_no' },
                 { data: 'store_name' },
-                {
-                    data: 'facebook_account_link',
-                    render: function(data) {
-                        return data
-                            ? '<a href="' + data + '" target="_blank" rel="noopener noreferrer">' + data + '</a>'
-                            : '';
-                    }
-                },
                 {
                     data: 'status',
                     render: function(data, type, row) {
@@ -306,6 +304,14 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
 </ul>
 </div>`;
                         }
+                    }
+                },
+                {
+                    data: 'facebook_account_link',
+                    render: function(data) {
+                        return data
+                            ? '<a href="' + data + '" target="_blank" rel="noopener noreferrer">' + data + '</a>'
+                            : '';
                     }
                 },
                 {
@@ -356,23 +362,19 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
                     extend: 'pdfHtml5',
                     className: 'btn-pdf',
                     exportOptions: {
-                        columns: [0,1,2,3,4,5,6,7,8,9,10], // Removed 11 and 12
-                        format: {
+                        columns: [0,1,2,3,4,5,6,7,8,9], // Removed 11 and 12
+                        format:  {
                             header: function (d, columnIdx) {
                                 return d;
                             },
                             body: function(data, row, column, node) {
-                                if (column === 10) { // Handle column 10 button text extraction as before
+                                if (column === 9) { // Handle column 10 button text extraction as before
                                     var div = document.createElement('div');
                                     div.innerHTML = data;
                                     var btn = div.querySelector('button');
                                     return btn ? btn.textContent.trim() : data;
                                 }
-                                if (column === 9) {
-                                    var div = document.createElement('div');
-                                    div.innerHTML = data;
-                                    return div.textContent || div.innerText || '';
-                                }
+
                                 return data;
                             }
                         },
@@ -383,6 +385,7 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
                         }
                     },
                     customize: function(doc) {
+                        doc.content[1].margin = [ 12, 0, 10, 0 ];
                         // Add date range to PDF title if filters are applied
                         var fromDate = $('#fromDate').val();
                         var toDate = $('#toDate').val();
@@ -413,11 +416,29 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
 
                         doc.pageSize = 'A4';
                         doc.pageOrientation = 'landscape';
-                        doc.pageMargins = [6, 6, 6, 6];
+                        doc.pageMargins = [10, 10, 10, 10]; // left, top, right, bottom
+
+                        // === TABLE REFERENCE (after unshift, table is at index 1) ===
+                        var table = doc.content[1].table;
+                        var body  = table.body;
+
+                        // === COLUMN WIDTHS (11 columns) ===
+                        table.widths = [
+                            '10%',  // First Name
+                            '10%',  // Last Name
+                            '10%',  // Contact No
+                            '10%',  // Product
+                            '10%', // Product Name
+                            '10%',  // Serial No
+                            '10%',  // Purchase Date
+                            '10%',  // Receipt No
+                            '10%',  // Store Name
+                            '10%'  // Status
+                        ];
 
                         // Center align table headers and prevent wrap
                         doc.styles.tableHeader.alignment = 'center';
-                        doc.styles.tableHeader.margin = [5, 5, 3, 5];
+                        doc.styles.tableHeader.margin = [20, 5, 5, 5];
                         doc.styles.tableHeader.fontSize = 10;
                         doc.styles.tableHeader.noWrap = true;
 
@@ -426,10 +447,10 @@ ${data.charAt(0).toUpperCase() + data.slice(1)}
                             if (rowIndex === 0) return;
                             row.forEach(function(cell, index) {
                                 if (typeof cell === 'string') {
-                                    row[index] = { text: cell, alignment: 'center', margin: [5, 2, 3, 2] };
+                                    row[index] = { text: cell, alignment: 'center', margin: [20, 5, 5, 5] };
                                 } else {
                                     cell.alignment = 'center';
-                                    cell.margin = [5, 2, 3, 2];
+                                    cell.margin = [20, 5, 5, 5];
                                 }
                             });
                         });

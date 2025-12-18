@@ -19,10 +19,19 @@ class AuthController extends Controller
     {
         if ($request->ajax()) {
             $credentials = $request->only('username', 'password');
+            $username = $credentials['username'];
+
+            // Check if user exists first
+            $user = User::where('username', $username)->first();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 401);
+            }
 
             if (Auth::attempt($credentials)) {
                 $user = Auth::user();
-
                 $redirectUrl = match ($user->role) {
                 'admin' => route('admin.index'),
                 'csr_rs8' => route('csr_rs8.index'),
@@ -32,8 +41,6 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-
-
             return response()->json([
                 'success' => true,
                 'message' => 'Logged in successfully.',
@@ -41,11 +48,15 @@ class AuthController extends Controller
             ]);
         }
 
-            return response()->json(['success' => false, 'message' => 'Invalid credentials.'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid password.'
+            ], 401);
         }
 
         return view('auth.login');
     }
+
 
 
 

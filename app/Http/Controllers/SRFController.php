@@ -18,7 +18,7 @@ class SRFController extends Controller
                 'productName' => function ($q) {
                     $q->withTrashed();  // Includes soft-deleted productName records
                 }
-            ]);
+            ])->orderBy('created_at', 'desc');
 
             // 2. Apply date range filtering on the same $query
             if ($request->filled('from_date')) {

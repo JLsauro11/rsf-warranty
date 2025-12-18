@@ -22,12 +22,14 @@ class SRFController extends Controller
 
             // 2. Apply date range filtering on the same $query
             if ($request->filled('from_date')) {
-                $query->whereDate('purchase_date', '>=', $request->from_date);
+                $query->whereDate('created_at', '>=', $request->from_date);
             }
 
             if ($request->filled('to_date')) {
-                $query->whereDate('purchase_date', '<=', $request->to_date);
+                $query->whereDate('created_at', '<=', $request->to_date);
             }
+
+            $query->orderBy('created_at', 'desc');
 
             // 3. Execute the query
             $registrations = $query->get();

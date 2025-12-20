@@ -21,8 +21,8 @@ class AuthController extends Controller
             $credentials = $request->only('username', 'password');
             $username = $credentials['username'];
 
-            // Check if user exists first
-            $user = User::where('username', $username)->first();
+            // Case-sensitive lookup for binary charset columns
+            $user = User::whereRaw('username = BINARY ?', [$username])->first();
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -30,8 +30,10 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            if (Auth::attempt($credentials)) {
-                $user = Auth::user();
+            // Manual case-sensitive password check + login
+            if (Hash::check($credentials['password'], $user->password)) {
+                Auth::login($user);
+
                 $redirectUrl = match ($user->role) {
                 'admin' => route('admin.index'),
                 'csr_rs8' => route('csr_rs8.index'),
@@ -56,6 +58,8 @@ class AuthController extends Controller
 
         return view('auth.login');
     }
+
+
 
 
 

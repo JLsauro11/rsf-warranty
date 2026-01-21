@@ -17,7 +17,7 @@
     <!-- endinject -->
     <link
             rel="icon"
-            href="{{ asset('assets/img/rsf.ico') }}"
+            href="{{ asset('assets/img/rs8xsrf.ico') }}"
             type="image/x-icon"
     />
 

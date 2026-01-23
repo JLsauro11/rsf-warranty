@@ -14,12 +14,18 @@ use App\Http\Controllers\CSRSRFController;
 use App\Http\Controllers\UserController;
 
 
-// ADD AUTH MIDDLEWARE TO ROOT - MOVED TO TOP
 Route::get('/', function () {
-    return view('home.index');
-})->middleware(['auth', 'role:admin|csr_rs8|csr_srf']);
-
-
+    if (auth()->check()) {
+        $user = auth()->user();
+        return match (true) {
+        $user->isAdmin() => redirect()->route('admin.index'),
+            $user->isCsrRs8() => redirect()->route('csr_rs8.index'),
+            $user->isCsrSrf() => redirect()->route('csr_srf.index'),
+            default => redirect('/login')
+        };
+    }
+    return redirect('/login');
+});
 
 Route::controller(RegistrationController::class)->group(function() {
     // Show form

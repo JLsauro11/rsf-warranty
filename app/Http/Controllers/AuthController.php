@@ -58,21 +58,26 @@ class AuthController extends Controller
 
         return view('auth.login');
     }
-
-
-
-
-
-
-
+    
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['success' => true, 'message' => 'Logged out successfully.', 'redirect_url' => route('login')]);
+        // Check if request expects JSON (AJAX)
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out successfully.',
+                'redirect_url' => route('login')
+            ]);
+        }
+
+        // Non-AJAX: redirect directly
+        return redirect()->route('login');
     }
+
 
     public function forgot_password()
     {

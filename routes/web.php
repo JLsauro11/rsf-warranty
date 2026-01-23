@@ -13,9 +13,12 @@ use App\Http\Controllers\CSRRS8Controller;
 use App\Http\Controllers\CSRSRFController;
 use App\Http\Controllers\UserController;
 
+
+// ADD AUTH MIDDLEWARE TO ROOT - MOVED TO TOP
 Route::get('/', function () {
-    return view('home.index'); // or your desired view
-})->middleware(['auth', 'role:admin']); // restrict access as needed
+    return view('home.index');
+})->middleware(['auth', 'role:admin|csr_rs8|csr_srf']);
+
 
 
 Route::controller(RegistrationController::class)->group(function() {
@@ -24,13 +27,14 @@ Route::controller(RegistrationController::class)->group(function() {
     Route::get('products/{productId}', 'getProductNames')->name('getProductNames');
 });
 
-Route::controller(AuthController::class)->group( function() {
+Route::controller(AuthController::class)->middleware('guest')->group( function() {
     Route::match(['post', 'get'], 'login', 'login')->name('login');
-    Route::post('auth/logout', 'logout')->name('logout');
     Route::get( 'forgot-password', 'forgot_password')->name('forgot-password');
     Route::post( 'verify/submit', 'verify_submit')->name('verify-submit');
     Route::match( ['post','get'], 'change-password', 'change_password_submit')->name('change-password-submit');
 });
+
+Route::match(['get', 'post'],'logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::group(['prefix' => 'admin/account', 'as' => 'admin.account.', 'middleware' => ['auth', 'role:admin']], function(){
     Route::match(['post', 'get'], 'update-account', [AccountController::class, 'update_account'])->name('update');

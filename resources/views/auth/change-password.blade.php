@@ -124,7 +124,7 @@
                                             placeholder="Enter New Password"
                                     />
                                     <span class="input-icon-addon" onclick="password_toggler('password')">
-                              <i id="password_eye" class="fas fa-eye"></i>
+                              <i id="password_eye" class="fas fa-eye-slash"></i>
                             </span>
                                 </div>
                             </div>
@@ -138,7 +138,7 @@
                                             placeholder="Confirm New Password"
                                     />
                                     <span class="input-icon-addon" onclick="password_toggler('password_confirmation')">
-                              <i id="password_confirmation_eye" class="fas fa-eye"></i>
+                              <i id="password_confirmation_eye" class="fas fa-eye-slash"></i>
                             </span>
                                 </div>
                             </div>
@@ -169,6 +169,28 @@
 
 <script>
     $(function () {
+
+        function toggleEyeVisibility(inputId, eyeId) {
+            const $input = $('#' + inputId);
+            const $eye = $('#' + eyeId);
+
+            if ($input.val().length > 0) {
+                $eye.show();
+            } else {
+                $eye.hide();
+            }
+        }
+
+        // Initial check and bind input events
+        $('#password, #password_confirmation').each(function() {
+            const inputId = this.id;
+            const eyeId = this.id + '_eye';
+            toggleEyeVisibility(inputId, eyeId);
+
+            $(this).on('input keyup', function() {
+                toggleEyeVisibility(inputId, eyeId);
+            });
+        });
 
     $('#verify-change-form').submit(function(e) {
         e.preventDefault(); // Prevent form submission
@@ -255,9 +277,9 @@
     });
     });
 
-    function password_toggler(selector){
-        $('#'+selector+'_eye').toggleClass('fa-eye fa-eye-slash')
-        $('#'+selector).attr('type', function(index, attr){
+    function password_toggler(selector) {
+        $('#' + selector + '_eye').toggleClass('fa-eye fa-eye-slash');
+        $('#' + selector).attr('type', function(index, attr) {
             return attr == 'text' ? 'password' : 'text';
         });
     }

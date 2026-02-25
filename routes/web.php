@@ -33,12 +33,17 @@ Route::controller(RegistrationController::class)->group(function() {
     Route::get('products/{productId}', 'getProductNames')->name('getProductNames');
 });
 
-Route::controller(AuthController::class)->middleware('guest')->group( function() {
+Route::controller(AuthController::class)->middleware('guest')->group(function() {
     Route::match(['post', 'get'], 'login', 'login')->name('login');
-    Route::get( 'forgot-password', 'forgot_password')->name('forgot-password');
-    Route::post( 'verify/submit', 'verify_submit')->name('verify-submit');
-    Route::match( ['post','get'], 'change-password', 'change_password_submit')->name('change-password-submit');
+    Route::get('forgot-password', 'forgot_password')->name('forgot-password');
+    Route::post('verify/submit', 'verify_submit')->name('verify-submit');
+
+    // Protect change-password route - only accessible after email verification
+    Route::match(['post', 'get'], 'change-password', 'change_password_submit')
+        ->middleware('check.password.reset')
+        ->name('change-password-submit');
 });
+
 
 Route::match(['get', 'post'],'logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 

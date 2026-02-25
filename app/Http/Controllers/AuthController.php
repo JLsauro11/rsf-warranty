@@ -80,7 +80,7 @@ class AuthController extends Controller
     }
 
 
-    public function forgot_password(Request $request)  // POST to /forgot-password
+    public function forgot_password(Request $request)
     {
         if ($request->isMethod('post')) {
             $validator = Validator::make($request->all(), [
@@ -95,13 +95,17 @@ class AuthController extends Controller
             }
 
             $user = User::where('email', trim($request->email))->first();
-            $verificationCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);  // Numeric 6-digit
+            $verificationCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
             $user->verification_code = $verificationCode;
             $user->verification_expires_at = now()->addMinutes(5);
             $user->save();
 
-            session(['reset_email' => $user->email]);  // Simple session key
+            // Store with timestamp for double security
+            session([
+                'reset_email' => $user->email,
+                'reset_requested_at' => now()
+            ]);
 
             $data = [
                 'subject' => 'Password Reset Verification Code',
@@ -126,33 +130,49 @@ class AuthController extends Controller
                 'redirect' => route('change-password')
             ]);
         }
+
         return view('auth.forgot-password');
     }
 
-    public function change_password()  // GET /change-password
+    public function change_password()
     {
         $email = session('reset_email');
-        if (!$email) {
+        $requestedAt = session('reset_requested_at');
+
+        // Check session exists
+        if (!$email || !$requestedAt) {
+            session()->forget(['reset_email', 'reset_requested_at']);
             return redirect()->route('forgot-password')
                 ->with('error', 'Session expired. Please request new code.');
         }
 
-        $user = User::where('email', $email)
+        // Session timeout: 10 minutes max
+        if (now()->diffInMinutes($requestedAt) > 10) {
+            session()->forget(['reset_email', 'reset_requested_at']);
+            return redirect()->route('forgot-password')
+                ->with('error', 'Session expired. Please request new code.');
+        }
+
+        // Double-check database expiry
+        $user = User::where('email', trim($email))
             ->whereNotNull('verification_code')
             ->whereNotNull('verification_expires_at')
             ->where('verification_expires_at', '>', now())
             ->first();
 
         if (!$user) {
-            session()->forget('reset_email');
+            session()->forget(['reset_email', 'reset_requested_at']);
             return redirect()->route('forgot-password')
                 ->with('error', 'Verification code expired. Please request new code.');
         }
 
-        return view('auth.change-password');
+        return view('auth.change-password', [
+            'email' => $email,
+            'expires_at' => $user->verification_expires_at
+        ]);
     }
 
-    public function change_password_submit(Request $request)  // POST /change-password
+    public function change_password_submit(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'verification_code' => 'required|string|size:6',
@@ -174,8 +194,8 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $user = User::where('email', $email)
-            ->where('verification_code', $request->verification_code)
+        $user = User::where('email', trim($email))
+            ->whereRaw('CAST(verification_code AS CHAR) = ?', [trim($request->verification_code)])
             ->where('verification_expires_at', '>', now())
             ->first();
 
@@ -192,7 +212,7 @@ class AuthController extends Controller
             'verification_expires_at' => null,
         ]);
 
-        session()->forget('reset_email');
+        session()->forget(['reset_email', 'reset_requested_at']);
 
         return response()->json([
             'status' => true,

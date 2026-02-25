@@ -207,20 +207,9 @@
             type: 'POST',
             data: formdata,
             success: function (response) {
-
-                if (response.validation == true) {
-                    let errors = response.errors;
-
-                    if (typeof errors === 'object') {
-                        errors = Object.values(errors)[0];
-                        if (Array.isArray(errors)) {
-                            errors = errors[0];
-                        }
-                    }
-
-                    errors = errors || "An error occurred"; // fallback string if empty
-
-                    swal("Failed!", errors, {
+                // Fixed: Check status field
+                if (response.status === false) {
+                    swal("Failed!", response.message, {
                         icon: "error",
                         buttons: {
                             confirm: {
@@ -237,7 +226,7 @@
                         buttons: {
                             confirm: {
                                 text: "OK",
-                                className: "btn btn-success"  // your custom CSS class
+                                className: "btn btn-success"
                             }
                         },
                         closeOnClickOutside: false,
@@ -247,19 +236,16 @@
                 }
             },
             error: function (xhr) {
-                let errors = xhr.responseJSON.errors;
+                let errorMessage = "An error occurred";
 
-                if (typeof errors === 'object') {
-                    // If it's an object, try to get a string safely
-                    errors = Object.values(errors)[0];
-                    if (Array.isArray(errors)) {
-                        errors = errors[0];
-                    }
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    let errors = Object.values(xhr.responseJSON.errors)[0];
+                    errorMessage = Array.isArray(errors) ? errors[0] : errors;
                 }
 
-                errors = errors || "An error occurred"; // fallback string if empty
-
-                swal("Failed!", errors, {
+                swal("Failed!", errorMessage, {
                     icon: "error",
                     buttons: {
                         confirm: {
@@ -267,7 +253,6 @@
                         },
                     },
                 });
-
             },
             complete: function() {
                 $btn.prop('disabled', false);

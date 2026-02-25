@@ -109,7 +109,7 @@
             var email = $('#email').val();
 
             $.ajax({
-                url: "{{ route('verify-submit') }}",
+                url: "{{ route('forgot-password') }}",
                 type: 'POST',
                 data: {
                     email: email,

@@ -34,15 +34,12 @@ Route::controller(RegistrationController::class)->group(function() {
 });
 
 Route::controller(AuthController::class)->middleware('guest')->group(function() {
-    Route::match(['post', 'get'], 'login', 'login')->name('login');
-    Route::get('forgot-password', 'forgot_password')->name('forgot-password');
-    Route::post('verify/submit', 'verify_submit')->name('verify-submit');
-
-    // Protect change-password route - only accessible after email verification
-    Route::match(['post', 'get'], 'change-password', 'change_password_submit')
-        ->middleware('check.password.reset')
-        ->name('change-password-submit');
+    Route::match(['get', 'post'], 'login', 'login')->name('login');
+    Route::match(['get', 'post'], 'forgot-password', 'forgot_password')->name('forgot-password');  // GET form + POST submit
+    Route::get('change-password', 'change_password')->name('change-password');                    // GET form
+    Route::post('change-password', 'change_password_submit')->name('change-password.submit');    // POST submit
 });
+
 
 
 Route::match(['get', 'post'],'logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');

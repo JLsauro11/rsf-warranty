@@ -107,7 +107,7 @@
                         {{--<img src="../../images/logo.svg" alt="logo">--}}
                         {{--</div>--}}
                         <h4>Update Password</h4>
-                        <form id="verify-change-form" method="post" action="{{ route('change-password-submit') }}" enctype="multipart/form-data" class="pt-3">
+                        <form id="verify-change-form" method="post" action="{{ route('change-password.submit') }}" enctype="multipart/form-data" class="pt-3">
                             @csrf
                             <div class="form-group">
                                 <input type="text" name="verification_code" id="verification_code" class="form-control" placeholder="Enter Verification Code">

@@ -10,6 +10,7 @@ use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 
 
@@ -79,121 +80,125 @@ class AuthController extends Controller
     }
 
 
-    public function forgot_password()
+    public function forgot_password(Request $request)  // POST to /forgot-password
     {
-        return view('auth.forgot-password');
-    }
-
-    public function verify_submit(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'validation' => true, 'errors' => $validator->errors()->first()]);
-        }
-
-        $user = User::where('email', $request->email)->first();
-        $verificationCode = Str::random(6);
-        $user->verification_code = $verificationCode;
-        $user->verification_expires_at = now()->addMinutes(5);
-        $user->save();
-
-        // Store verification data in session
-        $request->session()->put([
-            'password_reset_email' => $user->email,
-            'verification_code_sent_at' => now(),
-        ]);
-
-        $data = [
-            'subject' => 'Password Reset Verification Code',
-            'template' => 'email.confirmation',
-            'verification_code' => $verificationCode,
-            'expires_at' => $user->verification_expires_at->format('Y-m-d H:i A'),
-            'user_name' => $user->username,
-        ];
-
-        Mail::to($user->email)->send(new NotificationMail($data));
-
-        return response()->json([
-            'message' => 'Verification code sent to your email.',
-            'redirect' => route('change-password-submit')
-        ]);
-    }
-
-
-    public function change_password_submit(Request $request)
-    {
-        // Check if user has valid verification session first
-        if (!$request->session()->has('password_reset_email')) {
-            return redirect()->route('forgot-password')
-                ->with('error', 'Please request a verification code first.');
-        }
-
-        $email = $request->session()->get('password_reset_email');
-        $user = User::where('email', $email)->first();
-
-        // FIXED: Proper null/expiration check
-        if (!$user ||
-            !$user->verification_code ||
-            !$user->verification_expires_at ||
-            now()->gte($user->verification_expires_at)) {  // Use gte() instead of greaterThan()
-
-            $request->session()->forget(['password_reset_email', 'verification_code_sent_at']);
-            return redirect()->route('forgot-password')
-                ->with('error', 'Verification code has expired or was already used. Please request a new one.');
-        }
-
-        if ($request->ajax()) {
+        if ($request->isMethod('post')) {
             $validator = Validator::make($request->all(), [
-                'verification_code' => 'required|string',
-                'password' => 'required|string|min:8|confirmed',
+                'email' => 'required|email|exists:users,email',
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status' => false, 'validation' => true, 'errors' => $validator->errors()->first()]);
-            }
-
-            // Check submitted code matches database
-            if ($request->verification_code !== $user->verification_code) {
                 return response()->json([
                     'status' => false,
-                    'validation' => true,
-                    'errors' => 'Invalid verification code.',
-                ]);
+                    'message' => $validator->errors()->first()
+                ], 422);
             }
 
-            // Final expiration check
-            if (now()->gte($user->verification_expires_at)) {
-                $request->session()->forget(['password_reset_email', 'verification_code_sent_at']);
-                return response()->json([
-                    'status' => false,
-                    'validation' => true,
-                    'errors' => 'Verification code has expired. Please request a new one.',
-                ]);
-            }
+            $user = User::where('email', trim($request->email))->first();
+            $verificationCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);  // Numeric 6-digit
 
-            $user->password = Hash::make($request->password);
-            $user->verification_code = null;
-            $user->verification_expires_at = null;
+            $user->verification_code = $verificationCode;
+            $user->verification_expires_at = now()->addMinutes(5);
             $user->save();
 
-            $request->session()->forget(['password_reset_email', 'verification_code_sent_at']);
+            session(['reset_email' => $user->email]);  // Simple session key
+
+            $data = [
+                'subject' => 'Password Reset Verification Code',
+                'template' => 'email.confirmation',
+                'verification_code' => $verificationCode,
+                'expires_at' => $user->verification_expires_at->format('M d, Y g:i A'),
+                'user_name' => $user->username ?? $user->name ?? 'User',
+            ];
+
+            try {
+                Mail::to($user->email)->send(new NotificationMail($data));
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to send email. Please try again.'
+                ], 500);
+            }
 
             return response()->json([
                 'status' => true,
-                'validation' => false,
-                'message' => 'Password updated successfully!',
-                'redirect' => route('login'),
+                'message' => 'Verification code sent to your email.',
+                'redirect' => route('change-password')
             ]);
+        }
+        return view('auth.forgot-password');
+    }
+
+    public function change_password()  // GET /change-password
+    {
+        $email = session('reset_email');
+        if (!$email) {
+            return redirect()->route('forgot-password')
+                ->with('error', 'Session expired. Please request new code.');
+        }
+
+        $user = User::where('email', $email)
+            ->whereNotNull('verification_code')
+            ->whereNotNull('verification_expires_at')
+            ->where('verification_expires_at', '>', now())
+            ->first();
+
+        if (!$user) {
+            session()->forget('reset_email');
+            return redirect()->route('forgot-password')
+                ->with('error', 'Verification code expired. Please request new code.');
         }
 
         return view('auth.change-password');
     }
 
+    public function change_password_submit(Request $request)  // POST /change-password
+    {
+        $validator = Validator::make($request->all(), [
+            'verification_code' => 'required|string|size:6',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
 
+        $email = session('reset_email');
+        if (!$email) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Session expired. Please request new code.'
+            ], 400);
+        }
 
+        $user = User::where('email', $email)
+            ->where('verification_code', $request->verification_code)
+            ->where('verification_expires_at', '>', now())
+            ->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid or expired verification code.'
+            ], 400);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+            'verification_code' => null,
+            'verification_expires_at' => null,
+        ]);
+
+        session()->forget('reset_email');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password updated successfully!',
+            'redirect' => route('login'),
+        ]);
+    }
 }
 

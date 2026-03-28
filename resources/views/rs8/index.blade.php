@@ -236,6 +236,8 @@
         var table = $("#rs8-warranty").DataTable({
             scrollX: true,
 //            processing: true,
+            deferRender: true,        // Only render visible rows
+            pageLength: 10,           // Show 10 rows per page
             serverSide: false,
             ajax: {
                 url: ajaxUrl,
@@ -314,7 +316,7 @@
                     data: 'receipt_image_path',
                     render: function(data) {
                         return data
-                            ? '<a href="' + data + '" target="_blank"><img src="' + data + '" width="50" height="50"/></a>'
+                            ? '<a href="' + data + '" target="_blank"><img src="' + data + '" width="50" height="50" loading="lazy"/></a>'
                             : '';
                     }
                 },
@@ -322,7 +324,7 @@
                     data: 'product_image_path',
                     render: function(data) {
                         return data
-                            ? '<a href="' + data + '" target="_blank"><img src="' + data + '" width="50" height="50"/></a>'
+                            ? '<a href="' + data + '" target="_blank"><img src="' + data + '" width="50" height="50" **loading="lazy"** /></a>'
                             : '';
                     }
                 },

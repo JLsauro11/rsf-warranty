@@ -100,9 +100,7 @@ Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => ['auth', 'rol
 
 Route::group(['prefix' => 'admin/rs8', 'as' => 'admin.rs8.', 'middleware' => ['auth', 'role:admin']], function(){
     Route::controller(Rs8Controller::class)->group(function () {
-        Route::get('', 'index')->name('index'); // accessible by both admin and csr_rs8
-
-        // Restrict these routes only for admins by applying middleware in controller or here:
+        Route::get('', 'index')->name('index');
         Route::post('update-status', 'update_status')->name('update-status');
         Route::post('delete', 'delete')->name('delete');
     });

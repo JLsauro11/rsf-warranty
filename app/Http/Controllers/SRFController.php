@@ -35,24 +35,6 @@ class SRFController extends Controller
             $registrations = $query->get();
 
             $data = $registrations->map(function ($registration) {
-                $receiptImagePath = $registration->receipt_image_path ? public_path(ltrim($registration->receipt_image_path, '/')) : null;
-                $productImagePath = $registration->product_image_path ? public_path(ltrim($registration->product_image_path, '/')) : null;
-
-                $receiptImageBase64 = '';
-                $productImageBase64 = '';
-
-                if ($receiptImagePath && file_exists($receiptImagePath)) {
-                    $type = pathinfo($receiptImagePath, PATHINFO_EXTENSION);
-                    $data = file_get_contents($receiptImagePath);
-                    $receiptImageBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                }
-
-                if ($productImagePath && file_exists($productImagePath)) {
-                    $type = pathinfo($productImagePath, PATHINFO_EXTENSION);
-                    $data = file_get_contents($productImagePath);
-                    $productImageBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                }
-
                 return [
                     'id' => $registration->id,
                     'first_name' => $registration->first_name,
@@ -66,8 +48,6 @@ class SRFController extends Controller
                     'receipt_no' => $registration->receipt_no,
                     'receipt_image_path' => $registration->receipt_image_path ? url(ltrim($registration->receipt_image_path, '/')) : null,
                     'product_image_path' => $registration->product_image_path ? url(ltrim($registration->product_image_path, '/')) : null,
-                    'receipt_image_base64' => $receiptImageBase64,
-                    'product_image_base64' => $productImageBase64,
                     'store_name' => $registration->store_name,
                     'facebook_account_link' => $registration->facebook_account_link,
                     'status' => $registration->status,

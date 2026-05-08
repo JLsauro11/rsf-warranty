@@ -211,13 +211,13 @@
             $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registering...');
 
             // Check file sizes here and block submission if size exceeded
-            const maxSizeBytes = 15 * 1024 * 1024; // 15MB
+            const maxSizeBytes = 5 * 1024 * 1024; // 5MB
             const receipt_imageInput = $('#receipt_image')[0];
             const product_imageInput = $('#product_image')[0];
 //            const videoInput = $('#video')[0];
             if ((receipt_imageInput.files.length > 0 && receipt_imageInput.files[0].size > maxSizeBytes) ||
                 (product_imageInput.files.length > 0 && product_imageInput.files[0].size > maxSizeBytes)) {
-                swal("File Too Large!", "Image size must be less than 15 MB.", {
+                swal("File Too Large!", "Image size must be less than 5 MB.", {
                     icon: "error",
                     buttons: {
                         confirm: {

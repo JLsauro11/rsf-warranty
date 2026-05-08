@@ -28,8 +28,8 @@ class RegistrationController extends Controller
                     'receipt_no' => 'required|string|max:255',
                     'store_name' => 'required|string|max:150',
                     'fap_link' => 'required|string|max:255',
-                    'receipt_image' => 'required|image|max:15360',       // max 5MB
-                    'product_image' => 'required|image|max:15360',       // max 5MB
+                    'receipt_image' => 'required|image|max:5120',       // max 5MB
+                    'product_image' => 'required|image|max:5120',       // max 5MB
                 ], [
                     'fap_link.required' => 'The Facebook Account/Page Link field is required. Please provide a valid URL.',
                 ]);

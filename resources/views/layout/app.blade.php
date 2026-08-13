@@ -10,7 +10,7 @@
     />
     <link
             rel="icon"
-            href="{{ asset('assets/img/rs8xsrf.ico') }}"
+            href="{{ asset('assets/img/favicon.png') }}"
             type="image/x-icon"
     />
     <!-- Sweet Alert -->

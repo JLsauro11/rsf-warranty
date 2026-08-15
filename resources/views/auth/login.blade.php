@@ -6,11 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>RS8 x SRF Warranty | Sign In</title>
     <link rel="icon" href="{{ asset('assets/img/favicon.png') }}" type="image/x-icon" />
+    <title>Sign In</title>
+    <!-- base:css -->
     <link rel="stylesheet" href="{{ asset('assets/login/materialdesignicons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/login/vendor.bundle.base.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/login/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/fonts.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/rs8-srf-theme.css') }}">
+    <!-- endinject -->
+    <link
+            rel="icon"
+            href="{{ asset('assets/img/favicon.png') }}"
+            type="image/x-icon"
+    />
+
+
+    <style>
+        .form-control {
+            border: 1px solid #b3b3b3;
+            font-weight: 400;
+            font-size: 0.875rem;
+        }
+        .swal-footer {
+            text-align: center;
+        }
+        .content-wrapper {
+            background-image: url('{{ asset('assets/img/undraw/undraw_Hello_qnas.svg') }}');
+            background-size: 50rem 50rem;
+            /*background-position: center;*/
+            background-repeat: no-repeat;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.937rem 1.437rem;
+            width: 100%;
+            -webkit-flex-grow: 1;
+            flex-grow: 1;
+
+        }
+
+    </style>
+
 </head>
 <body class="rs-auth-page" data-brand="fusion">
 <div class="rs-auth-shell">

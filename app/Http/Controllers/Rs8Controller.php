@@ -18,10 +18,10 @@ class Rs8Controller extends Controller
                 ->orderBy('created_at', 'desc');
 
             if ($request->filled('from_date')) {
-                $query->whereDate('created_at', '>=', $request->from_date);
+                $query->whereDate('purchase_date', '>=', $request->from_date);
             }
             if ($request->filled('to_date')) {
-                $query->whereDate('created_at', '<=', $request->to_date);
+                $query->whereDate('purchase_date', '<=', $request->to_date);
             }
 
             $registrations = $query->get();
@@ -128,5 +128,45 @@ class Rs8Controller extends Controller
         ]);
     }
 
+
+
+    public function bulkDelete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => ['required', 'array', 'min:1', 'max:5000'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:warranty_registrations,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        $records = WarrantyRegistration::whereIn('id', $request->ids)
+            ->whereHas('product', function ($query) {
+                $query->where('product_code', 'rs8');
+            })
+            ->get();
+        $deleted = 0;
+
+        foreach ($records as $record) {
+            if ($record->receipt_image_path && File::exists(public_path($record->receipt_image_path))) {
+                File::delete(public_path($record->receipt_image_path));
+            }
+            if ($record->product_image_path && File::exists(public_path($record->product_image_path))) {
+                File::delete(public_path($record->product_image_path));
+            }
+            $record->delete();
+            $deleted++;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => $deleted . ' warranty record' . ($deleted === 1 ? '' : 's') . ' deleted successfully.',
+            'deleted_count' => $deleted,
+        ]);
+    }
 
 }

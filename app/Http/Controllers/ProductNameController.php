@@ -39,7 +39,7 @@ class ProductNameController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'model_code' => ['required', 'string', 'max:255'],
-            'product_id' => ['required', 'exists:products,id'], // Fixed table name
+            'product_id' => ['required', 'exists:product,id'], // Fixed table name
         ]);
 
         if ($validator->fails()) {
@@ -166,6 +166,108 @@ class ProductNameController extends Controller
                 'errors' => ['Failed to restore product name.']
             ], 500);
         }
+    }
+
+
+
+    public function bulkRestore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => ['required', 'array', 'min:1', 'max:5000'],
+            'ids.*' => ['required', 'integer', 'distinct'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        $records = ProductName::onlyTrashed()->whereIn('id', $request->ids)->get();
+
+        if ($records->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No deleted product names were found.',
+            ], 404);
+        }
+
+        $restored = 0;
+        foreach ($records as $record) {
+            $record->restore();
+            $restored++;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => $restored . ' product name' . ($restored === 1 ? '' : 's') . ' restored successfully.',
+            'restored_count' => $restored,
+        ]);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => ['required', 'array', 'min:1', 'max:5000'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:product_name,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        $records = ProductName::whereIn('id', $request->ids)->get();
+        $deleted = 0;
+        foreach ($records as $record) {
+            $record->delete();
+            $deleted++;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => $deleted . ' product name' . ($deleted === 1 ? '' : 's') . ' deleted successfully.',
+            'deleted_count' => $deleted,
+        ]);
+    }
+
+
+    public function bulkForceDelete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => ['required', 'array', 'min:1', 'max:5000'],
+            'ids.*' => ['required', 'integer', 'distinct'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        $records = ProductName::onlyTrashed()->whereIn('id', $request->ids)->get();
+        if ($records->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No deleted product names were found.',
+            ], 404);
+        }
+
+        $deleted = 0;
+        foreach ($records as $record) {
+            $record->forceDelete();
+            $deleted++;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => $deleted . ' trashed product name' . ($deleted === 1 ? '' : 's') . ' permanently deleted.',
+            'deleted_count' => $deleted,
+        ]);
     }
 
 }

@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', 'RS8')
+@section('title', 'RS8 Warranty')
 
 @section('content')
 
@@ -12,7 +12,7 @@
 
         div.dataTables_scrollBody table {
             border-top: none;
-            margin-top: -20px !important;
+            margin-top: 0 !important;
             margin-bottom: 0 !important;
         }
         .dropdown-menu.p-2 .dropdown-item.badge-warning:hover {
@@ -77,43 +77,16 @@
             margin-right: auto;
         }
 
-        #rs8-warranty th, tbody {
+        #rs8-warranty th,
+        #rs8-warranty td {
             text-align: center;
-        }
-
-        .table thead th {
-            font-size: .95rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 12px 50px !important;
-            border-bottom-width: 1px;
-            font-weight: 600;
+            vertical-align: middle;
+            white-space: nowrap;
         }
 
         .dataTables_filter {
             margin-left: 0; /* space between buttons and search */
             margin-bottom: 0;  /* align vertically */
-        }
-
-        /* Excel green color */
-        .btn-excel {
-            background-color: #217346 !important; /* Excel Green */
-            color: white !important;
-        }
-
-        /* PDF red color */
-        .btn-pdf {
-            background-color: #d44646 !important; /* PDF Red */
-            color: white !important;
-        }
-
-        /* Optional: Add hover color changes */
-        .btn-excel:hover {
-            background-color: #1b5a30 !important;
-        }
-
-        .btn-pdf:hover {
-            background-color: #a83636 !important;
         }
 
         .btn.disabled, .btn:disabled, fieldset:disabled .btn {
@@ -163,21 +136,36 @@
 
         <div class="container">
             <div class="page-inner">
-                    @include('layout.breadcrumbs')
+                @include('layout.breadcrumbs')
+                <div class="rs-page-heading">
+                    <div class="rs-eyebrow">RS8 Operations</div>
+                    <h2>RS8 Warranty Records</h2>
+                    <p>Review registrations, warranty status, proof of purchase, and customer details.</p>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">RS8 Clients</h4>
+                                <h4 class="card-title">RS8 Warranty Records</h4>
                             </div>
                             <div class="card-body">
-                                <!-- Date Range Filter -->
+                                @include('components.warranty-date-filter', ['brand' => 'rs8'])
+
+                                @if(auth()->user()->role === 'admin')
+                                    <div class="d-flex justify-content-end mb-3">
+                                        <button type="button" id="bulkDeleteWarranty" class="btn-bulk-delete" disabled>
+                                            <i class="fas fa-trash-alt"></i> Delete Selected
+                                            <span class="bulk-select-count" data-count="0"></span>
+                                        </button>
+                                    </div>
+                                @endif
 
                                 <div class="table-responsive">
 
-                                    <table id="rs8-warranty" class=" nowrap display table table-striped table-hover">
+                                    <table id="rs8-warranty" class="nowrap display table table-striped table-hover" style="width:100%">
                                         <thead>
                                         <tr>
+                                            <th class="bulk-select-head"><input type="checkbox" class="table-select-all" aria-label="Select all visible warranty records"></th>
                                             <th>First Name</th>
                                             <th>Last Name</th>
                                             <th>Contact No</th>
@@ -214,6 +202,7 @@
 
 @push ('js')
 
+<script src="{{ asset('assets/js/warranty-date-filter.js') }}"></script>
 <script>
 
     var userRole = @json(auth()->user()->role);
@@ -235,9 +224,11 @@
 
         var table = $("#rs8-warranty").DataTable({
             scrollX: true,
+            autoWidth: true,
 //            processing: true,
             deferRender: true,        // Only render visible rows
-            pageLength: 10,           // Show 10 rows per page
+            pageLength: 5,            // Default to 5 rows per page
+            lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
             serverSide: false,
             ajax: {
                 url: ajaxUrl,
@@ -250,18 +241,37 @@
                     return json.data;
                 }
             },
-            order: [[13, 'desc']],
+            order: [[14, 'desc']],
             columnDefs: [
                 {
-                    targets: [9, 14], // zero-based index of Status and Action columns
+                    targets: 0,
+                    visible: userRole === 'admin',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    targets: [10, 15], // zero-based index of Status and Action columns
                     visible: !(userRole === 'csr_rs8' || userRole === 'csr_srf')
                 },
                 {
-                    targets: 13,  // created_at column
+                    targets: 14,  // created_at column
                     visible: false  // Always hidden
                 }
             ],
+            initComplete: function() {
+                const api = this.api();
+                requestAnimationFrame(function() {
+                    api.columns.adjust().draw(false);
+                });
+            },
             columns: [
+                {
+                    data: null, orderable: false, searchable: false, className: 'bulk-select-cell',
+                    render: function(data, type, row) {
+                        if (userRole !== 'admin') return '';
+                        return `<input type="checkbox" class="table-row-select" value="${row.id}" aria-label="Select warranty record">`;
+                    }
+                },
                 { data: 'first_name' },
                 { data: 'last_name' },
                 { data: 'contact_no' },
@@ -358,9 +368,11 @@
             buttons: [
                 {
                     extend: 'pdfHtml5',
-                    className: 'btn-pdf',
+                    className: 'warranty-pdf-btn rs8-pdf-btn',
+                    text: '<i class="fas fa-file-pdf" aria-hidden="true"></i><span>Export PDF</span>',
+                    titleAttr: 'Export filtered warranty records to PDF',
                     exportOptions: {
-                        columns: [0,1,2,3,4,5,6,7,8,9], // Removed 11 and 12
+                        columns: [1,2,3,4,5,6,7,8,9,10], // Removed 11 and 12
                         format:  {
                             header: function (d, columnIdx) {
                                 return d;
@@ -465,53 +477,19 @@
             ]
         });
 
-        const dateFilterHtml = `
-  <div id="dateFilterWrapper"
-       class="d-flex flex-wrap align-items-end gap-2">
+        if (userRole === 'admin' && window.RSFBulkDelete) {
+            RSFBulkDelete.init({
+                table: table,
+                tableSelector: '#rs8-warranty',
+                deleteUrl: '{{ route("admin.rs8.bulk-delete") }}',
+                buttonSelector: '#bulkDeleteWarranty'
+            });
+        }
 
-    <div class="d-flex flex-column">
-      <label class="form-label mb-1">From Date</label>
-      <input type="date" class="form-control form-control-sm" id="fromDate">
-    </div>
-
-    <div class="d-flex flex-column">
-      <label class="form-label mb-1">To Date</label>
-      <input type="date" class="form-control form-control-sm" id="toDate">
-    </div>
-
-    <div class="d-flex align-items-end gap-1">
-      <button type="button" class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
-      <button type="button" class="btn btn-secondary btn-sm" id="clearFilterBtn">Clear</button>
-    </div>
-  </div>
-`;
-
-// Order inside left block: length -> date range -> PDF
-        $('#rs8-warranty_wrapper .dt-buttons').before(dateFilterHtml);
-
-
-
-        // Filter button click handler
-        $('#filterBtn').on('click', function() {
-            table.ajax.reload();
+        initWarrantyDateFilter({
+            table: table,
+            root: '#warrantyDateFilter'
         });
-
-        // Clear filter button handler
-        $('#clearFilterBtn').on('click', function() {
-            $('#fromDate').val('');
-            $('#toDate').val('');
-            table.ajax.reload();
-        });
-
-        // Enter key support for date inputs
-        $('#fromDate, #toDate').on('keypress', function(e) {
-            if (e.which === 13) {
-                $('#filterBtn').click();
-            }
-        });
-
-
-
 
         var updateStatusUrl = '{{ route("admin.rs8.update-status") }}';
 

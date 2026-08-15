@@ -1,541 +1,149 @@
-<style>
-    .form-check, .form-group {
-        margin-bottom: 0;
-        padding: 0;
-    }
-    .toggle-header {
-        margin-bottom: 12px; /* Add spacing below each toggle */
-        border-radius: 8px;
-        background: #f8f9fa;
-        cursor: pointer;
-        user-select: none;
-        padding: 12px 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: background-color 0.25s ease;
-        box-shadow: inset 0 -1px 0 #dee2e6;
-    }
-    .toggle-header:last-of-type {
-        margin-bottom: 0; /* Remove margin for last toggle */
-    }
+@php
+    $headerUser = auth()->user();
+    $headerRole = $headerUser->role;
+    $headerUsername = $headerUser->username ?: 'Account';
+    $headerEmail = $headerUser->email ?: '';
+    $headerRoleLabel = match ($headerRole) {
+        'admin' => 'Administrator',
+        'csr_rs8' => 'RS8 Customer Service',
+        'csr_srf' => 'SRF Customer Service',
+        default => 'User',
+    };
+@endphp
 
-    .toggle-header:hover {
-        background: #e9ecef;
-    }
-    .toggle-header.active {
-        background: #e0f2ff;
-        box-shadow: inset 4px 0 0 0 #38a9ff;
-    }
-
-    .toggle-header span {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #333;
-    }
-    .toggle-header i {
-        font-size: 1.25rem;
-        color: #38a9ff;
-        transition: transform 0.3s ease;
-    }
-
-    /* When active, arrow points down (rotated) */
-    .toggle-header.active i {
-        transform: rotate(180deg);
-        color: #0d6efd;
-    }
-
-    .navbar-brand {
-        height: 20px;
-        width: auto;
-    }
-
-
-</style>
 <div class="main-header">
     <div class="main-header-logo">
-        <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">
-            <a href="{{ route(auth()->user()->role == 'admin' ? 'admin.index' : (auth()->user()->role == 'csr_rs8' ? 'csr_rs8.index' : 'csr_srf.index')) }}" class="logo">
-                <img
-                        src="{{ asset('assets/img/' . (auth()->user()->role == 'admin' ? 'rs8xsrf.png' : (auth()->user()->role == 'csr_srf' ? 'rsf.png' : 'rs8.png')) ) }}"
-                        alt="navbar brand"
-                        class="navbar-brand"
-                        height="50"
-                />
+            <a href="{{ route($headerRole === 'admin' ? 'admin.index' : ($headerRole === 'csr_rs8' ? 'csr_rs8.index' : 'csr_srf.index')) }}" class="logo">
+                <img src="{{ asset('assets/img/rs8xsrf.png') }}" alt="RS8 x SRF" class="navbar-brand" />
             </a>
-
-            <div class="nav-toggle">
-                <button class="btn btn-toggle toggle-sidebar">
+            <div class="nav-toggle sidebar-toggle-mobile">
+                <button type="button" class="btn btn-toggle universal-sidebar-toggler" aria-label="Toggle sidebar" aria-expanded="false">
                     <i class="gg-menu-right"></i>
                 </button>
-                <button class="btn btn-toggle sidenav-toggler">
-                    <i class="gg-menu-left"></i>
-                </button>
             </div>
-            <button class="topbar-toggler more">
-                <i class="gg-more-vertical-alt"></i>
-            </button>
+            <button class="topbar-toggler more"><i class="gg-more-vertical-alt"></i></button>
         </div>
-        <!-- End Logo Header -->
     </div>
-    <!-- Navbar Header -->
-    <nav
-            class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
-    >
+
+    <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg">
         <div class="container-fluid">
-            {{--<nav--}}
-                    {{--class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"--}}
-            {{-->--}}
-                {{--<div class="input-group">--}}
-                    {{--<div class="input-group-prepend">--}}
-                        {{--<button type="submit" class="btn btn-search pe-1">--}}
-                            {{--<i class="fa fa-search search-icon"></i>--}}
-                        {{--</button>--}}
-                    {{--</div>--}}
-                    {{--<input--}}
-                            {{--type="text"--}}
-                            {{--placeholder="Search ..."--}}
-                            {{--class="form-control"--}}
-                    {{--/>--}}
-                {{--</div>--}}
-            {{--</nav>--}}
+            <div class="main-header-title">
+                <div class="title-mark"><i class="fas fa-shield-alt"></i></div>
+                <div class="title-copy">
+                    <span class="eyebrow">Operations System</span>
+                    <span class="title">Warranty Management</span>
+                </div>
+            </div>
 
-            <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                {{--<li--}}
-                        {{--class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none"--}}
-                {{-->--}}
-                    {{--<a--}}
-                            {{--class="nav-link dropdown-toggle"--}}
-                            {{--data-bs-toggle="dropdown"--}}
-                            {{--href="#"--}}
-                            {{--role="button"--}}
-                            {{--aria-expanded="false"--}}
-                            {{--aria-haspopup="true"--}}
-                    {{-->--}}
-                        {{--<i class="fa fa-search"></i>--}}
-                    {{--</a>--}}
-                    {{--<ul class="dropdown-menu dropdown-search animated fadeIn">--}}
-                        {{--<form class="navbar-left navbar-form nav-search">--}}
-                            {{--<div class="input-group">--}}
-                                {{--<input--}}
-                                        {{--type="text"--}}
-                                        {{--placeholder="Search ..."--}}
-                                        {{--class="form-control"--}}
-                                {{--/>--}}
-                            {{--</div>--}}
-                        {{--</form>--}}
-                    {{--</ul>--}}
-                {{--</li>--}}
-                {{--<li class="nav-item topbar-icon dropdown hidden-caret">--}}
-                    {{--<a--}}
-                            {{--class="nav-link dropdown-toggle"--}}
-                            {{--href="#"--}}
-                            {{--id="messageDropdown"--}}
-                            {{--role="button"--}}
-                            {{--data-bs-toggle="dropdown"--}}
-                            {{--aria-haspopup="true"--}}
-                            {{--aria-expanded="false"--}}
-                    {{-->--}}
-                        {{--<i class="fa fa-envelope"></i>--}}
-                    {{--</a>--}}
-                    {{--<ul--}}
-                            {{--class="dropdown-menu messages-notif-box animated fadeIn"--}}
-                            {{--aria-labelledby="messageDropdown"--}}
-                    {{-->--}}
-                        {{--<li>--}}
-                            {{--<div--}}
-                                    {{--class="dropdown-title d-flex justify-content-between align-items-center"--}}
-                            {{-->--}}
-                                {{--Messages--}}
-                                {{--<a href="#" class="small">Mark all as read</a>--}}
-                            {{--</div>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                            {{--<div class="message-notif-scroll scrollbar-outer">--}}
-                                {{--<div class="notif-center">--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-img">--}}
-                                            {{--<img--}}
-                                                    {{--src="assets/img/jm_denis.jpg"--}}
-                                                    {{--alt="Img Profile"--}}
-                                            {{--/>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                                            {{--<span class="subject">Jimmy Denis</span>--}}
-                                            {{--<span class="block"> How are you ? </span>--}}
-                                            {{--<span class="time">5 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-img">--}}
-                                            {{--<img--}}
-                                                    {{--src="assets/img/chadengle.jpg"--}}
-                                                    {{--alt="Img Profile"--}}
-                                            {{--/>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                                            {{--<span class="subject">Chad</span>--}}
-                                            {{--<span class="block"> Ok, Thanks ! </span>--}}
-                                            {{--<span class="time">12 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-img">--}}
-                                            {{--<img--}}
-                                                    {{--src="assets/img/mlane.jpg"--}}
-                                                    {{--alt="Img Profile"--}}
-                                            {{--/>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                                            {{--<span class="subject">Jhon Doe</span>--}}
-                                            {{--<span class="block">--}}
-                                {{--Ready for the meeting today...--}}
-                              {{--</span>--}}
-                                            {{--<span class="time">12 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-img">--}}
-                                            {{--<img--}}
-                                                    {{--src="assets/img/talha.jpg"--}}
-                                                    {{--alt="Img Profile"--}}
-                                            {{--/>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                                            {{--<span class="subject">Talha</span>--}}
-                                            {{--<span class="block"> Hi, Apa Kabar ? </span>--}}
-                                            {{--<span class="time">17 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                            {{--<a class="see-all" href="javascript:void(0);"--}}
-                            {{-->See all messages<i class="fa fa-angle-right"></i>--}}
-                            {{--</a>--}}
-                        {{--</li>--}}
-                    {{--</ul>--}}
-                {{--</li>--}}
-                {{--<li class="nav-item topbar-icon dropdown hidden-caret">--}}
-                    {{--<a--}}
-                            {{--class="nav-link dropdown-toggle"--}}
-                            {{--href="#"--}}
-                            {{--id="notifDropdown"--}}
-                            {{--role="button"--}}
-                            {{--data-bs-toggle="dropdown"--}}
-                            {{--aria-haspopup="true"--}}
-                            {{--aria-expanded="false"--}}
-                    {{-->--}}
-                        {{--<i class="fa fa-bell"></i>--}}
-                        {{--<span class="notification">4</span>--}}
-                    {{--</a>--}}
-                    {{--<ul--}}
-                            {{--class="dropdown-menu notif-box animated fadeIn"--}}
-                            {{--aria-labelledby="notifDropdown"--}}
-                    {{-->--}}
-                        {{--<li>--}}
-                            {{--<div class="dropdown-title">--}}
-                                {{--You have 4 new notification--}}
-                            {{--</div>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                            {{--<div class="notif-scroll scrollbar-outer">--}}
-                                {{--<div class="notif-center">--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-icon notif-primary">--}}
-                                            {{--<i class="fa fa-user-plus"></i>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                                            {{--<span class="block"> New user registered </span>--}}
-                                            {{--<span class="time">5 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-icon notif-success">--}}
-                                            {{--<i class="fa fa-comment"></i>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                              {{--<span class="block">--}}
-                                {{--Rahmad commented on Admin--}}
-                              {{--</span>--}}
-                                            {{--<span class="time">12 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-img">--}}
-                                            {{--<img--}}
-                                                    {{--src="assets/img/profile2.jpg"--}}
-                                                    {{--alt="Img Profile"--}}
-                                            {{--/>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                              {{--<span class="block">--}}
-                                {{--Reza send messages to you--}}
-                              {{--</span>--}}
-                                            {{--<span class="time">12 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a href="#">--}}
-                                        {{--<div class="notif-icon notif-danger">--}}
-                                            {{--<i class="fa fa-heart"></i>--}}
-                                        {{--</div>--}}
-                                        {{--<div class="notif-content">--}}
-                                            {{--<span class="block"> Farrah liked Admin </span>--}}
-                                            {{--<span class="time">17 minutes ago</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                            {{--<a class="see-all" href="javascript:void(0);"--}}
-                            {{-->See all notifications<i class="fa fa-angle-right"></i>--}}
-                            {{--</a>--}}
-                        {{--</li>--}}
-                    {{--</ul>--}}
-                {{--</li>--}}
-                {{--<li class="nav-item topbar-icon dropdown hidden-caret">--}}
-                    {{--<a--}}
-                            {{--class="nav-link"--}}
-                            {{--data-bs-toggle="dropdown"--}}
-                            {{--href="#"--}}
-                            {{--aria-expanded="false"--}}
-                    {{-->--}}
-                        {{--<i class="fas fa-layer-group"></i>--}}
-                    {{--</a>--}}
-                    {{--<div class="dropdown-menu quick-actions animated fadeIn">--}}
-                        {{--<div class="quick-actions-header">--}}
-                            {{--<span class="title mb-1">Quick Actions</span>--}}
-                            {{--<span class="subtitle op-7">Shortcuts</span>--}}
-                        {{--</div>--}}
-                        {{--<div class="quick-actions-scroll scrollbar-outer">--}}
-                            {{--<div class="quick-actions-items">--}}
-                                {{--<div class="row m-0">--}}
-                                    {{--<a class="col-6 col-md-4 p-0" href="#">--}}
-                                        {{--<div class="quick-actions-item">--}}
-                                            {{--<div class="avatar-item bg-danger rounded-circle">--}}
-                                                {{--<i class="far fa-calendar-alt"></i>--}}
-                                            {{--</div>--}}
-                                            {{--<span class="text">Calendar</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a class="col-6 col-md-4 p-0" href="#">--}}
-                                        {{--<div class="quick-actions-item">--}}
-                                            {{--<div--}}
-                                                    {{--class="avatar-item bg-warning rounded-circle"--}}
-                                            {{-->--}}
-                                                {{--<i class="fas fa-map"></i>--}}
-                                            {{--</div>--}}
-                                            {{--<span class="text">Maps</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a class="col-6 col-md-4 p-0" href="#">--}}
-                                        {{--<div class="quick-actions-item">--}}
-                                            {{--<div class="avatar-item bg-info rounded-circle">--}}
-                                                {{--<i class="fas fa-file-excel"></i>--}}
-                                            {{--</div>--}}
-                                            {{--<span class="text">Reports</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a class="col-6 col-md-4 p-0" href="#">--}}
-                                        {{--<div class="quick-actions-item">--}}
-                                            {{--<div--}}
-                                                    {{--class="avatar-item bg-success rounded-circle"--}}
-                                            {{-->--}}
-                                                {{--<i class="fas fa-envelope"></i>--}}
-                                            {{--</div>--}}
-                                            {{--<span class="text">Emails</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a class="col-6 col-md-4 p-0" href="#">--}}
-                                        {{--<div class="quick-actions-item">--}}
-                                            {{--<div--}}
-                                                    {{--class="avatar-item bg-primary rounded-circle"--}}
-                                            {{-->--}}
-                                                {{--<i class="fas fa-file-invoice-dollar"></i>--}}
-                                            {{--</div>--}}
-                                            {{--<span class="text">Invoice</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                    {{--<a class="col-6 col-md-4 p-0" href="#">--}}
-                                        {{--<div class="quick-actions-item">--}}
-                                            {{--<div--}}
-                                                    {{--class="avatar-item bg-secondary rounded-circle"--}}
-                                            {{-->--}}
-                                                {{--<i class="fas fa-credit-card"></i>--}}
-                                            {{--</div>--}}
-                                            {{--<span class="text">Payments</span>--}}
-                                        {{--</div>--}}
-                                    {{--</a>--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
-                        {{--</div>--}}
-                    {{--</div>--}}
-                {{--</li>--}}
 
+            <ul class="navbar-nav topbar-nav ms-auto align-items-center">
                 <li class="nav-item topbar-user dropdown hidden-caret">
-                    <a
-                            class="dropdown-toggle profile-pic"
-                            data-bs-toggle="dropdown"
-                            href="#"
-                            aria-expanded="false"
-                    >
+                    <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                         <div class="avatar-sm">
-                            <img
-                                    src="{{ asset('assets/img/profile-picture.png') }}"
-                                    alt="..."
-                                    class="avatar-img rounded-circle"
-                            />
+                            <img src="{{ asset('assets/img/profile-picture.png') }}" alt="Profile" class="avatar-img rounded-circle" />
                         </div>
                         <span class="profile-username">
-                      <span class="op-7">Hi,</span>
-                      <span class="fw-bold" id="userDisplay"></span>
-                    </span>
+                            <span class="op-7">{{ $headerRoleLabel }}</span><br>
+                            <span class="fw-bold" id="userDisplay">{{ $headerUsername }}</span>
+                        </span>
                     </a>
                     <ul class="dropdown-menu dropdown-user animated fadeIn">
-                        <div class="dropdown-user-scroll scrollbar-outer">
-                            <li>
-                                <div class="user-box">
-                                    <div class="avatar-lg">
-                                        <img
-                                                src="{{ asset('assets/img/profile-picture.png') }}"
-                                                alt="image profile"
-                                                class="avatar-img rounded"
-                                        />
-                                    </div>
-                                    <div class="u-text">
-                                        <h4 id="username"></h4>
-                                        <p class="text-muted" id="email"></p>
-                                        {{--<a--}}
-                                                {{--href="profile.html"--}}
-                                                {{--class="btn btn-xs btn-secondary btn-sm"--}}
-                                        {{-->View Profile</a--}}
-                                        {{-->--}}
-                                    </div>
+                        <li>
+                            <div class="user-box">
+                                <div class="avatar-lg">
+                                    <img src="{{ asset('assets/img/profile-picture.png') }}" alt="Profile" class="avatar-img rounded" />
                                 </div>
-                            </li>
-                            <li>
-                                {{--<div class="dropdown-divider"></div>--}}
-                                {{--<a class="dropdown-item" href="#">My Profile</a>--}}
-                                {{--<a class="dropdown-item" href="#">My Balance</a>--}}
-                                {{--<a class="dropdown-item" href="#">Inbox</a>--}}
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#accountSettingModal">Account Setting</a>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item" id="logout-btn">Logout</button>
-                            </li>
-                        </div>
+                                <div class="u-text">
+                                    <h4 id="headerUsername">{{ $headerUsername }}</h4>
+                                    <p class="text-muted mb-0" id="headerEmail">{{ $headerEmail }}</p>
+                                    <small class="text-muted">{{ $headerRoleLabel }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#accountSettingModal">
+                                <i class="fas fa-sliders-h me-2"></i> Account Settings
+                            </a>
+                            <button class="dropdown-item" id="logout-btn">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </button>
+                        </li>
                     </ul>
                 </li>
             </ul>
         </div>
     </nav>
-    <!-- End Navbar -->
 </div>
 
-<!-- Modal structure -->
 <div class="modal fade" id="accountSettingModal" tabindex="-1" aria-labelledby="accountSettingModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered app-modal-dialog app-modal-dialog--wide">
         <div class="modal-content">
             <form id="accountForm" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="accountSettingModalLabel">Account Setting</h5>
+                    <div>
+                        <h5 class="modal-title mb-1" id="accountSettingModalLabel">Account Settings</h5>
+                        <small class="text-muted">Update your sign-in information and password.</small>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Username Settings Toggle -->
                     <div id="acctsetting_toggleUsernameSettings" class="toggle-header active" aria-expanded="true" aria-controls="acctsetting_usernameSettingsContainer" role="button">
-                        <span>Username Settings</span>
+                        <span><i class="fas fa-user-circle me-2"></i> Profile Information</span>
                         <i class="fas fa-chevron-down" id="acctsetting_usernameSettingsArrow"></i>
                     </div>
 
                     <div id="acctsetting_usernameSettingsContainer">
                         <div class="mb-3">
                             <label for="acctsetting_userName" class="form-label">Username</label>
-                            <input
-                                    type="text"
-                                    class="form-control"
-                                    id="acctsetting_userName"
-                                    name="username"
-                                    placeholder="Enter your username"
-
-                            />
+                            <input type="text" class="form-control" id="acctsetting_userName" name="username" placeholder="Enter your username" />
                         </div>
                         <div class="mb-3">
                             <label for="acctsetting_email" class="form-label">Email</label>
-                            <input
-                                    type="text"
-                                    class="form-control"
-                                    id="acctsetting_email"
-                                    name="email"
-                                    placeholder="Enter your Email"
-
-                            />
+                            <input type="email" class="form-control" id="acctsetting_email" name="email" placeholder="Enter your email" />
                         </div>
                     </div>
 
-                    <!-- Password Settings Toggle -->
                     <div id="acctsetting_togglePasswordSettings" class="toggle-header" aria-expanded="false" aria-controls="acctsetting_passwordSettingsContainer" role="button">
-                        <span>Password Settings</span>
+                        <span><i class="fas fa-lock me-2"></i> Password</span>
                         <i class="fas fa-chevron-down" id="acctsetting_passwordSettingsArrow"></i>
                     </div>
 
                     <div id="acctsetting_passwordSettingsContainer" style="display:none;">
                         <div class="form-group mb-3">
                             <label for="acctsetting_current_password" class="form-label">Current Password</label>
-                            <div class="input-icon">
-                                <input
-                                        type="password"
-                                        class="form-control"
-                                        name="current_password"
-                                        id="acctsetting_current_password"
-                                        placeholder="Enter Current Password"
-                                />
-                                <span class="input-icon-addon" onclick="password_toggler('acctsetting_current_password')">
-                        <i id="acctsetting_current_password_eye" class="fas fa-eye"></i>
-                    </span>
+                            <div class="password-field">
+                                <input type="password" class="form-control" name="current_password" id="acctsetting_current_password" placeholder="Enter current password" autocomplete="current-password" />
+                                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false" title="Show password">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
                             </div>
                         </div>
-
                         <div class="form-group mb-3">
                             <label for="acctsetting_new_password" class="form-label">New Password</label>
-                            <div class="input-icon">
-                                <input
-                                        type="password"
-                                        id="acctsetting_new_password"
-                                        name="new_password"
-                                        class="form-control"
-                                        placeholder="Enter New Password"
-                                />
-                                <span class="input-icon-addon" onclick="password_toggler('acctsetting_new_password')">
-                        <i id="acctsetting_new_password_eye" class="fas fa-eye"></i>
-                    </span>
+                            <div class="password-field">
+                                <input type="password" id="acctsetting_new_password" name="new_password" class="form-control" placeholder="Enter new password" autocomplete="new-password" />
+                                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false" title="Show password">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
                             </div>
                         </div>
-
-                        <div class="form-group mb-3">
+                        <div class="form-group mb-0">
                             <label for="acctsetting_password_confirmation" class="form-label">Confirm Password</label>
-                            <div class="input-icon">
-                                <input
-                                        type="password"
-                                        id="acctsetting_password_confirmation"
-                                        name="new_password_confirmation"
-                                        class="form-control"
-                                        placeholder="Confirm Password"
-                                />
-                                <span class="input-icon-addon" onclick="password_toggler('acctsetting_password_confirmation')">
-                        <i id="acctsetting_password_confirmation_eye" class="fas fa-eye"></i>
-                    </span>
+                            <div class="password-field">
+                                <input type="password" id="acctsetting_password_confirmation" name="new_password_confirmation" class="form-control" placeholder="Confirm new password" autocomplete="new-password" />
+                                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false" title="Show password">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary account-form-btn">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary account-form-btn">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -543,216 +151,173 @@
 </div>
 
 @push('js')
-
 <script>
+    $(function () {
+        const $usernameContainer = $('#acctsetting_usernameSettingsContainer');
+        const $usernameToggle = $('#acctsetting_toggleUsernameSettings');
+        const $passwordContainer = $('#acctsetting_passwordSettingsContainer');
+        const $passwordToggle = $('#acctsetting_togglePasswordSettings');
 
-    $('#accountSettingModal').on('hidden.bs.modal', function () {
-        var $passwordContainer = $("#acctsetting_passwordSettingsContainer");
-        var $passwordToggleBtn = $("#acctsetting_togglePasswordSettings");
-        var $passwordArrow = $("#acctsetting_passwordSettingsArrow");
+        function setToggle($toggle, $container, open) {
+            $toggle.attr('aria-expanded', open ? 'true' : 'false').toggleClass('active', open);
+            open ? $container.stop(true, true).slideDown(180) : $container.stop(true, true).slideUp(180);
+        }
 
-        $passwordContainer.hide();
-        $passwordToggleBtn.attr("aria-expanded", "false").removeClass("active");
-        $passwordArrow.css('transform', 'rotate(0deg)').css('color', '#38a9ff'); // arrow up
+        $usernameToggle.on('click', function () {
+            setToggle($usernameToggle, $usernameContainer, $usernameToggle.attr('aria-expanded') !== 'true');
+        });
 
-        // Clear password inputs
-        $passwordContainer.find('input[type="password"]').val('');
-    });
+        $passwordToggle.on('click', function () {
+            setToggle($passwordToggle, $passwordContainer, $passwordToggle.attr('aria-expanded') !== 'true');
+        });
 
-    $(document).ready(function () {
-        var $usernameContainer = $("#acctsetting_usernameSettingsContainer");
-        var $usernameToggleBtn = $("#acctsetting_toggleUsernameSettings");
-        var $usernameArrow = $("#acctsetting_usernameSettingsArrow");
-
-        var $passwordContainer = $("#acctsetting_passwordSettingsContainer");
-        var $passwordToggleBtn = $("#acctsetting_togglePasswordSettings");
-        var $passwordArrow = $("#acctsetting_passwordSettingsArrow");
-
-        // On modal show: username visible (active), password hidden (inactive)
-        $("#acctsetting_accountSettingModal").on("show.bs.modal", function () {
-            $usernameContainer.show();
-            $usernameToggleBtn.attr("aria-expanded", "true").addClass("active");
-            $usernameArrow.css('transform', 'rotate(180deg)').css('color', '#0d6efd'); // arrow down
-
+        $('#accountSettingModal').on('show.bs.modal', function () {
+            setToggle($usernameToggle, $usernameContainer, true);
             $passwordContainer.hide();
-            $passwordToggleBtn.attr("aria-expanded", "false").removeClass("active");
-            $passwordArrow.css('transform', 'rotate(0deg)').css('color', '#38a9ff'); // arrow up
-
-            // Clear password inputs
-            $passwordContainer.find('input[type="password"]').val('');
+            $passwordToggle.attr('aria-expanded', 'false').removeClass('active');
+            $passwordContainer.find('input').filter('[name*="password"]').attr('type', 'password').val('').trigger('input');
         });
 
-        // Toggle username settings
-        $usernameToggleBtn.on("click", function () {
-            var isExpanded = $usernameToggleBtn.attr("aria-expanded") === "true";
-            $usernameToggleBtn.attr("aria-expanded", !isExpanded).toggleClass("active");
-            $usernameContainer.slideToggle(200);
-
-            if (isExpanded) {
-                $usernameArrow.css('transform', 'rotate(0deg)').css('color', '#38a9ff'); // arrow up
-            } else {
-                $usernameArrow.css('transform', 'rotate(180deg)').css('color', '#0d6efd'); // arrow down
-            }
-        });
-
-        // Toggle password settings
-        $passwordToggleBtn.on("click", function () {
-            var isExpanded = $passwordToggleBtn.attr("aria-expanded") === "true";
-            $passwordToggleBtn.attr("aria-expanded", !isExpanded).toggleClass("active");
-            $passwordContainer.slideToggle(200);
-
-            if (isExpanded) {
-                $passwordArrow.css('transform', 'rotate(0deg)').css('color', '#38a9ff'); // arrow up
-            } else {
-                $passwordArrow.css('transform', 'rotate(180deg)').css('color', '#0d6efd'); // arrow down
-            }
+        $('#accountSettingModal').on('hidden.bs.modal', function () {
+            $passwordContainer.hide();
+            $passwordToggle.attr('aria-expanded', 'false').removeClass('active');
+            $passwordContainer.find('input').filter('[name*="password"]').attr('type', 'password').val('').trigger('input');
         });
     });
-
-
-
 
     $('#logout-btn').on('click', function() {
         $.ajax({
             url: '{{ route("logout") }}',
             type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
+            data: { _token: '{{ csrf_token() }}' },
             success: function(response) {
-                if (response.success) {
-                    window.location.href = response.redirect_url; // example redirect after logout
-                }
+                if (response.success) window.location.href = response.redirect_url;
             }
         });
     });
 
     var userRole = @json(auth()->user()->role);
-
     var routes = {
         admin: {
             update: '{{ route("admin.account.update") }}',
-            display: '{{ route("admin.accountDisplay") }}',
+            display: '{{ route("admin.accountDisplay") }}'
         },
         csr_rs8: {
             update: '{{ route("csr_rs8.account.update") }}',
-            display: '{{ route("csr_rs8.accountDisplay") }}',
+            display: '{{ route("csr_rs8.accountDisplay") }}'
         },
         csr_srf: {
             update: '{{ route("csr_srf.account.update") }}',
-            display: '{{ route("csr_srf.accountDisplay") }}',
+            display: '{{ route("csr_srf.accountDisplay") }}'
         }
     };
 
     var accountDisplayRoute = routes[userRole]?.display || '{{ route("login") }}';
     var accountUpdateRoute = routes[userRole]?.update || '{{ route("login") }}';
 
-    // Fetch user info for display
-    $.ajax({
-        url: accountDisplayRoute,
-        type: 'GET',
-        success: function(data) {
-            $('#userDisplay').text(data.user.username);
-            $('#username').text(data.user.username);
-            $('#email').text(data.user.email);
-        }
-    });
+    function renderAccount(data) {
+        if (!data || !data.user) return;
+        $('#userDisplay').text(data.user.username || 'Account');
+        $('#headerUsername').text(data.user.username || 'Account');
+        $('#headerEmail').text(data.user.email || '');
+    }
 
-    $(document).ready(function() {
-        $('#accountForm').submit(function(e) {
+    $(function() {
+        $('#accountForm').on('submit', function(e) {
             e.preventDefault();
-
             var $form = $(this);
-            var formData = $form.serialize();
-
             var $btn = $form.find('.account-form-btn');
-            $btn.prop('disabled', true);
-            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+
+            var currentPassword = $('#acctsetting_current_password').val();
+            var newPassword = $('#acctsetting_new_password').val();
+            var confirmPassword = $('#acctsetting_password_confirmation').val();
+            var passwordChangeRequested = Boolean(currentPassword || newPassword || confirmPassword);
+
+            // Mirror the server-side all-or-nothing password rule for instant UX feedback.
+            if (passwordChangeRequested) {
+                if (!currentPassword) {
+                    $('#acctsetting_passwordSettingsContainer').stop(true, true).slideDown(180);
+                    $('#acctsetting_togglePasswordSettings').attr('aria-expanded', 'true').addClass('active');
+                    $('#acctsetting_current_password').trigger('focus');
+                    swal('Current password required', 'Enter your current password before changing your password.', 'warning');
+                    return;
+                }
+
+                if (!newPassword) {
+                    $('#acctsetting_passwordSettingsContainer').stop(true, true).slideDown(180);
+                    $('#acctsetting_togglePasswordSettings').attr('aria-expanded', 'true').addClass('active');
+                    $('#acctsetting_new_password').trigger('focus');
+                    swal('New password required', 'Enter the new password you want to use.', 'warning');
+                    return;
+                }
+
+                if (newPassword.length < 8) {
+                    $('#acctsetting_passwordSettingsContainer').stop(true, true).slideDown(180);
+                    $('#acctsetting_togglePasswordSettings').attr('aria-expanded', 'true').addClass('active');
+                    $('#acctsetting_new_password').trigger('focus');
+                    swal('Password too short', 'Your new password must be at least 8 characters.', 'warning');
+                    return;
+                }
+
+                if (!confirmPassword) {
+                    $('#acctsetting_passwordSettingsContainer').stop(true, true).slideDown(180);
+                    $('#acctsetting_togglePasswordSettings').attr('aria-expanded', 'true').addClass('active');
+                    $('#acctsetting_password_confirmation').trigger('focus');
+                    swal('Confirm password', 'Re-enter your new password to confirm it.', 'warning');
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    $('#acctsetting_passwordSettingsContainer').stop(true, true).slideDown(180);
+                    $('#acctsetting_togglePasswordSettings').attr('aria-expanded', 'true').addClass('active');
+                    $('#acctsetting_password_confirmation').trigger('focus');
+                    swal('Passwords do not match', 'New password and confirmation must be identical.', 'error');
+                    return;
+                }
+            }
+
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Saving...');
 
             $.ajax({
                 url: accountUpdateRoute,
                 method: 'POST',
-                data: formData,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
+                data: $form.serialize(),
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
                     if (response.validation) {
                         let errors = response.errors;
                         if (typeof errors === 'object') {
                             errors = Object.values(errors)[0];
-                            if (Array.isArray(errors)) {
-                                errors = errors[0];
-                            }
+                            if (Array.isArray(errors)) errors = errors[0];
                         }
-                        errors = errors || "An error occurred";
-
-                        swal("Failed!", errors, { icon: "error", buttons: { confirm: { className: "btn btn-danger" } } });
+                        swal('Unable to save', errors || 'Please check the form and try again.', 'error');
                     } else {
-                        swal({
-                            title: "Success!",
-                            text: response.message,
-                            icon: "success",
-                            buttons: { confirm: { text: "OK", className: "btn btn-success" } }
-                        });
+                        swal('Saved', response.message || 'Account updated successfully.', 'success');
+                        $('#userDisplay').text(response.username || 'Account');
+                        $('#headerUsername').text(response.username || 'Account');
+                        $('#headerEmail').text(response.email || '');
+                        $('#accountSettingModal').modal('hide');
                     }
-                    $('#userDisplay').text(response.username);
-                    $('#acctsetting_current_password').val('');
-                    $('#acctsetting_new_password').val('');
-                    $('#acctsetting_password_confirmation').val('');
-                    $('#username').text(response.username);
-                    $('#email').text(response.email);
-
-                    $('#accountSettingModal').modal('hide');
                 },
-                error: function (xhr) {
-                    let errors = xhr.responseJSON.errors;
+                error: function(xhr) {
+                    let errors = xhr.responseJSON?.errors || xhr.responseJSON?.message || 'An error occurred.';
                     if (typeof errors === 'object') {
                         errors = Object.values(errors)[0];
-                        if (Array.isArray(errors)) {
-                            errors = errors[0];
-                        }
+                        if (Array.isArray(errors)) errors = errors[0];
                     }
-                    errors = errors || "An error occurred";
-
-                    swal("Failed!", errors, { icon: "error", buttons: { confirm: { className: "btn btn-danger" } } });
+                    swal('Unable to save', errors, 'error');
                 },
                 complete: function() {
-                    $btn.prop('disabled', false);
-                    $btn.html('Save changes');
+                    $btn.prop('disabled', false).html('Save Changes');
+                    $('#acctsetting_current_password, #acctsetting_new_password, #acctsetting_password_confirmation').attr('type', 'password').val('').trigger('input');
                 }
             });
         });
 
-        // Fetch user data on modal show
         $('#accountSettingModal').on('show.bs.modal', function() {
-            $.ajax({
-                url: accountDisplayRoute,
-                method: "GET",
-                success: function(data) {
-                    $('#acctsetting_userName').val(data.user.username);
-                    $('#acctsetting_email').val(data.user.email);
-                    // Password fields remain empty for security reasons
-                    $('#acctsetting_current_password').val('');
-                    $('#acctsetting_new_password').val('');
-                    $('#acctsetting_password_confirmation').val('');
-                },
-                error: function() {
-                    alert('Failed to fetch account data.');
-                }
-            });
+            $('#acctsetting_userName').val($('#userDisplay').text().trim());
+            $('#acctsetting_email').val($('#headerEmail').text().trim());
         });
     });
-
-    function password_toggler(selector){
-        $('#'+selector+'_eye').toggleClass('fa-eye fa-eye-slash')
-        $('#'+selector).attr('type', function(index, attr){
-            return attr == 'text' ? 'password' : 'text';
-        });
-    }
-
-
-
 </script>
-
 @endpush

@@ -5226,6 +5226,15 @@ readers do not read off random characters that represent icons */
   content: "\f2ea";
 }
 
+/* Font Awesome compatibility aliases (FA6 names -> bundled FA5 glyphs) */
+.fa-rotate-left:before {
+  content: "\f2ea";
+}
+
+.fa-rotate-right:before {
+  content: "\f2f9";
+}
+
 .fa-uniregistry:before {
   content: "\f404";
 }

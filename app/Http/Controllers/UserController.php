@@ -114,4 +114,33 @@ class UserController extends Controller
     }
 
 
+
+    public function bulkDelete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => ['required', 'array', 'min:1', 'max:5000'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:users,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        $users = User::whereIn('id', $request->ids)->where('role', '!=', 'admin')->get();
+        $deleted = 0;
+        foreach ($users as $user) {
+            $user->delete();
+            $deleted++;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => $deleted . ' user' . ($deleted === 1 ? '' : 's') . ' deleted successfully.',
+            'deleted_count' => $deleted,
+        ]);
+    }
+
 }

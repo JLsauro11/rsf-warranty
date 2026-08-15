@@ -1,120 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>RSF</title>
-    <!-- base:css -->
+    <title>RS8 x SRF Warranty | Sign In</title>
+    <link rel="icon" href="{{ asset('assets/img/favicon.png') }}" type="image/x-icon" />
     <link rel="stylesheet" href="{{ asset('assets/login/materialdesignicons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/login/vendor.bundle.base.css') }}">
-    <!-- endinject -->
-    <!-- plugin css for this page -->
-    <!-- End plugin css for this page -->
-    <!-- inject:css -->
     <link rel="stylesheet" href="{{ asset('assets/login/style.css') }}">
-    <!-- endinject -->
-    <link
-            rel="icon"
-            href="{{ asset('assets/img/rs8xsrf.ico') }}"
-            type="image/x-icon"
-    />
-
-
-    <style>
-        .form-control {
-            border: 1px solid #b3b3b3;
-            font-weight: 400;
-            font-size: 0.875rem;
-        }
-        .swal-footer {
-            text-align: center;
-        }
-        .content-wrapper {
-            background-image: url('{{ asset('assets/img/undraw/undraw_Hello_qnas.svg') }}');
-            background-size: 50rem 50rem;
-            /*background-position: center;*/
-            background-repeat: no-repeat;
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.937rem 1.437rem;
-            width: 100%;
-            -webkit-flex-grow: 1;
-            flex-grow: 1;
-
-        }
-
-    </style>
-
+    <link rel="stylesheet" href="{{ asset('assets/css/fonts.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/rs8-srf-theme.css') }}">
 </head>
+<body class="rs-auth-page" data-brand="fusion">
+<div class="rs-auth-shell">
+    <section class="rs-auth-visual">
+        <div class="rs-auth-brand">
+            <div class="brand-combo">
+                <img src="{{ asset('assets/img/rs8-brand.png') }}" alt="RS8 Taiwan Speed Factory" class="rs8-logo">
+                <span class="brand-divider"></span>
+                <img src="{{ asset('assets/img/srf-brand.png') }}" alt="SRF" class="srf-logo">
+            </div>
+            <small>Unified Warranty Management System</small>
+        </div>
 
-<body>
-<div class="container-scroller d-flex">
-    <div class="container-fluid page-body-wrapper full-page-wrapper d-flex">
-        <div class="content-wrapper d-flex align-items-center auth px-0">
-            <div class="row w-100 mx-0">
-                <div class="col-lg-4 offset-lg-7">
-                    <div class="auth-form-light text-left py-5 px-4 px-sm-5 shadow-lg">
-                        {{--<div class="brand-logo">--}}
-                            {{--<img src="../../images/logo.svg" alt="logo">--}}
-                        {{--</div>--}}
-                        <h4>Sign In</h4>
-                        <form id="login-form" class="pt-3">
-                            @csrf
-                            <div class="form-group">
-                                <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Username">
-                            </div>
-                            <div class="form-group">
-                                <input type="password" name="password" id="password" class="form-control form-control-lg"  placeholder="Password">
-                            </div>
-                            <div class="mt-3">
-                                <button type="submit" id="login-btn" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN IN</button>
-                            </div>
-                            <div class="my-2 d-flex justify-content-between align-items-center">
-                                <div class="form-check">
-                                    {{--<label class="form-check-label text-muted">--}}
-                                        {{--<input type="checkbox" class="form-check-input">--}}
-                                        {{--Keep me signed in--}}
-                                    {{--</label>--}}
-                                </div>
-                                <a href="{{ route('forgot-password') }}" class="auth-link text-black text-center">Forgot password?</a>
-                            </div>
-                        </form>
+        <div class="rs-auth-message rs-auth-message-minimal">
+            <div class="rs-auth-kicker">Warranty Operations</div>
+            <h1>Control the workflow.<br>Keep it moving.</h1>
+            <p>One command interface for RS8 × SRF warranty operations, customer support, and product administration.</p>
+        </div>
+
+        <div class="rs-auth-footnote">RS8 x SRF • Internal Operations Portal</div>
+    </section>
+
+    <main class="rs-auth-panel">
+        <div class="rs-auth-card">
+            <div class="mobile-brand">
+                <img src="{{ asset('assets/img/rs8-brand.png') }}" alt="RS8">
+                <img src="{{ asset('assets/img/srf-brand.png') }}" alt="SRF">
+            </div>
+            <div class="auth-kicker">Secure Access</div>
+            <h2>Welcome back.</h2>
+            <p class="auth-copy">Sign in to continue to the RS8 x SRF warranty control center.</p>
+
+            <form id="login-form">
+                @csrf
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Enter your username" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="password-field">
+                        <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="Enter your password" autocomplete="current-password">
+                        <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false" title="Show password">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                        </button>
                     </div>
                 </div>
+                <div class="mt-3">
+                    <button type="submit" id="login-btn" class="btn btn-primary btn-lg auth-form-btn">Sign In</button>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <a href="{{ route('forgot-password') }}" class="auth-link">Forgot password?</a>
+                </div>
+            </form>
+
+            <div class="rs-auth-meta">
+                <span>Authorized personnel only</span>
+                <span>RS8 × SRF</span>
             </div>
         </div>
-        <!-- content-wrapper ends -->
-    </div>
-    <!-- page-body-wrapper ends -->
+    </main>
 </div>
-<!-- container-scroller -->
-<!-- base:js -->
+
 <script src="{{ asset('assets/login/vendor.bundle.base.js') }}"></script>
-<!-- endinject -->
-<!-- inject:js -->
-<script src="{{ asset('assets/login/off-canvas.js') }}"></script>
-<script src="{{ asset('assets/login/hoverable-collapse.js') }}"></script>
-<script src="{{ asset('assets/login/template.js') }}"></script>
-<!-- Sweet Alert -->
 <script src="{{ asset('assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
 <script src="{{ asset('assets/js/core/jquery-3.7.1.min.js') }}"></script>
-<!-- endinject -->
-
+<script src="{{ asset('assets/js/password-toggle.js') }}"></script>
 <script>
     $(function () {
         $('#login-form').on('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            const $btn = $('.auth-form-btn');
 
-            var $btn = $('.auth-form-btn');
-            $btn.prop('disabled', true);
-            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Signing In...');
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Signing In...');
 
             $.ajax({
                 url: '{{ route("login") }}',
@@ -122,52 +93,19 @@
                 data: formData,
                 contentType: false,
                 processData: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                 success: function(response) {
-
-                    console.log(response);
-
-                    if (response.success) {
-                        
-                        // swal({
-                        //     title: "Great Job!",
-                        //     text: response.message,
-                        //     icon: "success",
-                        //     timer: 1500,
-                        //     button: false
-                        // });
-
-                        window.location.href = response.redirect_url;
-                    }
+                    if (response.success) window.location.href = response.redirect_url;
                 },
-
                 error: function(xhr) {
-//                    swal("Login Failed", xhr.responseJSON.message, "error");
-                        swal("Login Failed!", xhr.responseJSON.message, {
-                            icon: "error",
-                            buttons: {
-                                confirm: {
-                                    className: "btn btn-danger",
-                                },
-                            },
-                        });
-
+                    swal('Login Failed', xhr.responseJSON?.message || 'Please check your username and password.', 'error');
                 },
                 complete: function() {
-                    $btn.prop('disabled', false);
-                    $btn.html('SIGN IN');
+                    $btn.prop('disabled', false).html('Sign In');
                 }
             });
         });
     });
-
-
-
-
 </script>
-
 </body>
-
 </html>

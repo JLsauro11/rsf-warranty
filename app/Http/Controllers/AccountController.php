@@ -1,31 +1,44 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-
 
 class AccountController extends Controller
 {
     public function update_account(Request $request)
     {
         if ($request->isMethod('post')) {
-            // Custom validation rules
+            $user = $request->user();
+
+            $passwordChangeRequested = $request->filled('current_password')
+                || $request->filled('new_password')
+                || $request->filled('new_password_confirmation');
+
             $rules = [
-                'username' => 'required|string|max:255|unique:users,username,' . $request->user()->id,
-                'email' => 'required|email|max:255|unique:users,email,' . $request->user()->id,
+                'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $user->id],
+                'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             ];
 
-            // Only validate password fields if current_password is provided
-            if ($request->filled('current_password')) {
-                $rules['current_password'] = ['required'];
+            // Password changes are all-or-nothing. If the user touches any password
+            // field, require the current password plus a confirmed new password.
+            if ($passwordChangeRequested) {
+                $rules['current_password'] = ['required', 'string'];
                 $rules['new_password'] = ['required', 'string', 'min:8', 'confirmed'];
+                $rules['new_password_confirmation'] = ['required', 'string'];
             }
 
-            $validator = Validator::make($request->all(), $rules);
+            $messages = [
+                'current_password.required' => 'Enter your current password to change your password.',
+                'new_password.required' => 'Enter a new password.',
+                'new_password.min' => 'New password must be at least 8 characters.',
+                'new_password.confirmed' => 'New password and confirmation do not match.',
+                'new_password_confirmation.required' => 'Confirm your new password.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             if ($validator->fails()) {
                 return response()->json([
@@ -34,22 +47,19 @@ class AccountController extends Controller
                 ], 422);
             }
 
-            $user = $request->user();
+            if ($passwordChangeRequested && !Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'validation' => true,
+                    'errors' => [
+                        'current_password' => ['Current password is incorrect.'],
+                    ],
+                ], 422);
+            }
 
-            // Update username and email
             $user->username = $request->username;
             $user->email = $request->email;
 
-            // If changing password, verify current password before updating
-            if ($request->filled('current_password')) {
-                if (!Hash::check($request->current_password, $user->password)) {
-                    return response()->json([
-                        'validation' => true,
-                        'errors' => ['current_password' => ['Current password is incorrect.']],
-                    ], 422);
-                }
-
-                // Update to new password (hashed)
+            if ($passwordChangeRequested) {
                 $user->password = Hash::make($request->new_password);
             }
 
@@ -59,7 +69,10 @@ class AccountController extends Controller
                 'validation' => false,
                 'username' => $user->username,
                 'email' => $user->email,
-                'message' => 'Account updated successfully.',
+                'password_changed' => $passwordChangeRequested,
+                'message' => $passwordChangeRequested
+                    ? 'Account and password updated successfully.'
+                    : 'Account updated successfully.',
             ]);
         }
 
@@ -70,5 +83,4 @@ class AccountController extends Controller
             'email' => $user->email,
         ]);
     }
-
 }

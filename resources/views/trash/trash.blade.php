@@ -20,17 +20,29 @@
         <div class="container">
             <div class="page-inner">
                 @include('layout.breadcrumbs')
+                <div class="rs-page-heading">
+                    <div class="rs-eyebrow">Recovery</div>
+                    <h2>Product Trash</h2>
+                    <p>Restore product names that were previously removed.</p>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title">Product Names Trash</h4>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title mb-0">Product Names Trash</h4>
+                                <div class="table-bulk-actions">
+                                    <button type="button" id="bulkRestoreTrash" class="btn-bulk-restore" disabled>
+                                        <i class="fas fa-redo-alt"></i> Restore Selected
+                                        <span class="bulk-select-count" data-count="0"></span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table id="product-name-trash-table" class=" nowrap display table table-striped table-hover">
+                                    <table id="product-name-trash-table" class="nowrap display table table-striped table-hover" style="width: 100%;">
                                         <thead>
                                         <tr>
+                                            <th class="bulk-select-head"><input type="checkbox" class="table-select-all" aria-label="Select all visible trash records"></th>
                                             <th>Product Name</th>
                                             <th>Product</th>
                                             <th>Deleted At</th>
@@ -59,12 +71,20 @@
 <script>
     $(document).ready(function () {
 
-        $("#product-name-trash-table").DataTable({
+        var table = $("#product-name-trash-table").DataTable({
             processing: true,
+            pageLength: 5,
+            lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
             serverSide: false,
             ajax: "{{ route('product-name.trash') }}",
-            order: [[2, 'desc']],
+            order: [[3, 'desc']],
             columns: [
+                {
+                    data: null, orderable: false, searchable: false, className: 'bulk-select-cell',
+                    render: function(data, type, row) {
+                        return `<input type="checkbox" class="table-row-select" value="${row.id}" aria-label="Select ${row.model_label || 'trash record'}">`;
+                    }
+                },
                 { data: 'model_label' },
                 { data: 'product.product_label' },
                 {
@@ -102,6 +122,16 @@
                 }
             ]
         });
+
+        var bulkRestoreController = null;
+        if (window.RSFBulkRestore) {
+            bulkRestoreController = RSFBulkRestore.init({
+                table: table,
+                tableSelector: '#product-name-trash-table',
+                deleteUrl: '{{ route("product-name.trash.bulk-restore") }}',
+                buttonSelector: '#bulkRestoreTrash'
+            });
+        }
 
         $('#product-name-trash-table tbody').on('click', 'button.restore-btn', function(e) {
             e.preventDefault();
@@ -170,8 +200,17 @@
                                     }
                                 });
 
-// Reload the datatable after delete success
-                                table.ajax.reload(null, false); // false to stay on the current page
+// If this row was part of the multi-restore selection, remove it
+                                // immediately so the Restore Selected count cannot stay stale.
+                                if (bulkRestoreController) {
+                                    bulkRestoreController.removeSelected(id);
+                                }
+
+                                // Reload and re-sync the remaining selections while staying
+                                // on the current page.
+                                table.ajax.reload(function () {
+                                    if (bulkRestoreController) bulkRestoreController.sync();
+                                }, false);
                             }
                         },
                         error: function(xhr) {

@@ -78,9 +78,11 @@ Route::group(['prefix' => 'product-name', 'as' => 'product-name.', 'middleware' 
         Route::post('add', 'add')->name('add');
         Route::get('trash', 'trash')->name('trash');
         Route::post('restore', 'restore')->name('restore');
+        Route::post('trash/bulk-restore', 'bulkRestore')->name('trash.bulk-restore');
         Route::get('edit/{id}', 'edit')->name('edit');
         Route::put('update/{id}', 'update')->name('update');
         Route::post('delete', 'delete')->name('delete');
+        Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
 
     });
 });
@@ -94,6 +96,7 @@ Route::group(['prefix' => 'user', 'as' => 'user.', 'middleware' => ['auth', 'rol
         Route::get('edit/{id}', 'edit')->name('edit');
         Route::put('update/{id}', 'update')->name('update');
         Route::post('delete', 'delete')->name('delete');
+        Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
 
     });
 });
@@ -103,6 +106,7 @@ Route::group(['prefix' => 'admin/rs8', 'as' => 'admin.rs8.', 'middleware' => ['a
         Route::get('', 'index')->name('index');
         Route::post('update-status', 'update_status')->name('update-status');
         Route::post('delete', 'delete')->name('delete');
+        Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete');
     });
 });
 
@@ -118,6 +122,7 @@ Route::group(['prefix' => 'admin/srf', 'as' => 'admin.srf.', 'middleware' => ['a
 
         Route::post('update-status', 'update_status')->name('update-status')->middleware('role:admin');
         Route::post('delete', 'delete')->name('delete')->middleware('role:admin');
+        Route::post('bulk-delete', 'bulkDelete')->name('bulk-delete')->middleware('role:admin');
     });
 });
 

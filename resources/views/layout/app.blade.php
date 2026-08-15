@@ -10,7 +10,7 @@
     />
     <link
             rel="icon"
-            href="{{ asset('assets/img/rs8xsrf.ico') }}"
+            href="{{ asset('assets/img/favicon.png') }}"
             type="image/x-icon"
     />
     <!-- Sweet Alert -->
@@ -40,14 +40,20 @@
     <link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}" />
 
-    <!-- CSS Just for demo purpose, don't include it in your project -->
-    <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
     <!-- DataTables Buttons CSS for export buttons -->
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
     @stack('css')
+    <link rel="stylesheet" href="{{ asset('assets/css/rs8-srf-theme.css') }}" />
 
 </head>
-<body>
+@php
+    $uiBrand = match (true) {
+        request()->routeIs('admin.rs8.*', 'csr_rs8.*') => 'rs8',
+        request()->routeIs('admin.srf.*', 'csr_srf.*') => 'srf',
+        default => 'fusion',
+    };
+@endphp
+<body data-brand="{{ $uiBrand }}">
 <div class="wrapper">
     <!-- Sidebar -->
     @include('layout.sidebar')
@@ -97,9 +103,93 @@
 <!-- Kaiadmin JS -->
 <script src="{{ asset('assets/js/kaiadmin.min.js') }}"></script>
 
-<!-- Kaiadmin DEMO methods, don't include it in your project! -->
-<script src="{{ asset('assets/js/setting-demo.js') }}"></script>
-<script src="{{ asset('assets/js/demo.js') }}"></script>
+<!-- Unified sidebar toggle: desktop collapse + mobile off-canvas -->
+<script>
+    (function () {
+        const desktopQuery = window.matchMedia('(min-width: 992px)');
+        const $html = $('html');
+        const $wrapper = $('.wrapper');
+        const $toggles = $('.universal-sidebar-toggler');
+
+        function syncSidebarToggle() {
+            const isDesktop = desktopQuery.matches;
+            const isOpen = isDesktop
+                ? !$wrapper.hasClass('sidebar_minimize')
+                : $html.hasClass('nav_open');
+
+            $toggles.attr('aria-expanded', isOpen ? 'true' : 'false');
+            $toggles.each(function () {
+                const $icon = $(this).find('i');
+                $icon.removeClass('gg-menu-left gg-menu-right');
+                $icon.addClass(isOpen ? 'gg-menu-left' : 'gg-menu-right');
+            });
+        }
+
+        function refreshResponsiveTables() {
+            // DataTables measures column widths when it is initialized.
+            // Recalculate after the sidebar width transition has finished.
+            if ($.fn.dataTable) {
+                $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust().draw(false);
+            }
+
+            $('.table-responsive, .dataTables_wrapper, table.dataTable').css('width', '100%');
+            $(window).triggerHandler('resize.rsResponsiveTables');
+        }
+
+        function scheduleTableRefresh() {
+            window.requestAnimationFrame(refreshResponsiveTables);
+            window.setTimeout(refreshResponsiveTables, 120);
+            window.setTimeout(refreshResponsiveTables, 280);
+        }
+
+        $toggles.on('click.rsUnifiedSidebar', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (desktopQuery.matches) {
+                $wrapper.toggleClass('sidebar_minimize');
+                $wrapper.removeClass('sidebar_minimize_hover');
+            } else {
+                $html.toggleClass('nav_open');
+            }
+
+            syncSidebarToggle();
+            scheduleTableRefresh();
+        });
+
+        $('.sidebar .nav-item > a').on('click.rsUnifiedSidebar', function () {
+            if (!desktopQuery.matches) {
+                $html.removeClass('nav_open');
+                syncSidebarToggle();
+            }
+        });
+
+        function handleBreakpointChange() {
+            if (desktopQuery.matches) {
+                $html.removeClass('nav_open');
+            } else {
+                $wrapper.removeClass('sidebar_minimize sidebar_minimize_hover');
+            }
+            syncSidebarToggle();
+            scheduleTableRefresh();
+        }
+
+        $('.main-panel, .sidebar').on('transitionend.rsResponsiveTables', function (event) {
+            if (event.originalEvent && event.originalEvent.propertyName === 'width') {
+                refreshResponsiveTables();
+            }
+        });
+
+        if (desktopQuery.addEventListener) {
+            desktopQuery.addEventListener('change', handleBreakpointChange);
+        } else {
+            desktopQuery.addListener(handleBreakpointChange);
+        }
+
+        handleBreakpointChange();
+    })();
+</script>
+
 <script>
     $(document).ready(function () {
         $("#basic-datatables").DataTable({});
@@ -185,6 +275,8 @@
         fillColor: "rgba(255, 165, 52, .14)",
     });
 </script>
+<script src="{{ asset('assets/js/password-toggle.js') }}"></script>
 @stack('js')
+    <script src="{{ asset('assets/js/bulk-table-delete.js') }}"></script>
 </body>
 </html>

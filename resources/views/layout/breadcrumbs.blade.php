@@ -1,46 +1,29 @@
-@push('css')
-<style>
-    .breadcrumbs {
-
-        padding-left: 0;
-        margin-left: 18px;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        width: 100%;
-    }
-</style>
-@endpush
-
 @php
     $userRole = auth()->user()->role;
+    $homeRoute = match ($userRole) {
+        'admin' => 'admin.index',
+        'csr_rs8' => 'csr_rs8.index',
+        'csr_srf' => 'csr_srf.index',
+        default => 'login',
+    };
+
+    $currentLabel = match (true) {
+        request()->routeIs('admin.rs8.*', 'csr_rs8.rs8.*') => 'RS8 Warranty',
+        request()->routeIs('admin.srf.*', 'csr_srf.srf.*') => 'SRF Warranty',
+        request()->routeIs('product-name.trash') => 'Product Trash',
+        request()->routeIs('product-name.*') => 'Product Names',
+        request()->routeIs('user.*') => 'Manage Users',
+        request()->routeIs('product.*') => 'Products',
+        default => 'Dashboard',
+    };
 @endphp
 
 <div class="page-header">
-    <ul class="breadcrumbs mb-3">
+    <ul class="breadcrumbs mb-0">
         <li class="nav-home">
-            <a href="{{
-                $userRole === 'admin' ? route('admin.index') : (
-                    $userRole === 'csr_rs8' ? route('csr_rs8.index') : route('csr_srf.index')
-                )
-            }}">
-                <i class="icon-home"></i>
-            </a>
+            <a href="{{ route($homeRoute) }}" aria-label="Dashboard"><i class="icon-home"></i></a>
         </li>
-        <li class="separator">
-            <i class="icon-arrow-right"></i>
-        </li>
-        @if(request()->routeIs('rs8.index'))
-            <li class="nav-item">RS8 Clients</li>
-        @elseif(request()->routeIs('srf.index'))
-            <li class="nav-item">SRF Clients</li>
-        @elseif(request()->routeIs('product.index'))
-            <li class="nav-item">Products</li>
-        @elseif(request()->routeIs('product-name.index'))
-            <li class="nav-item">Product Names</li>
-        @elseif(request()->routeIs('product-name.trash'))
-            <li class="nav-item">Product Names Trash</li>
-        @endif
+        <li class="separator"><i class="icon-arrow-right"></i></li>
+        <li class="nav-item">{{ $currentLabel }}</li>
     </ul>
 </div>
-

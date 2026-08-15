@@ -20,20 +20,32 @@
         <div class="container">
             <div class="page-inner">
                 @include('layout.breadcrumbs')
+                <div class="rs-page-heading">
+                    <div class="rs-eyebrow">Access Management</div>
+                    <h2>Manage Users</h2>
+                    <p>Create and maintain administrator and CSR accounts.</p>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title mb-0">Manage Users</h4>
-                                <button id="btn-add-user" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                                    <i class="fas fa-plus me-1"></i> Add User
-                                </button>
+                                <div class="table-bulk-actions">
+                                    <button type="button" id="bulkDeleteUsers" class="btn-bulk-delete" disabled>
+                                        <i class="fas fa-trash-alt"></i> Delete Selected
+                                        <span class="bulk-select-count" data-count="0"></span>
+                                    </button>
+                                    <button id="btn-add-user" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                        <i class="fas fa-plus me-1"></i> Add User
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table id="addUser-table" class=" nowrap display table table-striped table-hover">
+                                    <table id="addUser-table" class="nowrap display table table-striped table-hover" style="width: 100%;">
                                         <thead>
                                         <tr>
+                                            <th class="bulk-select-head"><input type="checkbox" class="table-select-all" aria-label="Select all visible users"></th>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Role</th>
@@ -59,20 +71,20 @@
     </div>
 
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered app-modal-dialog">
             <form id="add-user-form" method="post" enctype="multipart/form-data" class="modal-content">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addUserModalLabel">Add Product Name</h5>
+                    <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="model_code" class="form-label">Username</label>
+                        <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username">
                     </div>
                     <div class="mb-3">
-                        <label for="model_code" class="form-label">Email</label>
+                        <label for="email" class="form-label">Email</label>
                         <input type="text" class="form-control" id="email" name="email" placeholder="Enter Email">
                     </div>
                     <div class="mb-3">
@@ -86,7 +98,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="user_password" class="form-label">Password</label>
-                        <div class="input-icon">
+                        <div class="password-field">
                             <input
                                     type="password"
                                     id="user_password"
@@ -94,14 +106,14 @@
                                     class="form-control"
                                     placeholder="Enter Password"
                             />
-                            <span class="input-icon-addon" onclick="password_toggler('user_password')">
-                        <i id="user_password_eye" class="fas fa-eye"></i>
-                    </span>
+                            <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false" title="Show password">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="user_password_confirmation" class="form-label">Confirm Password</label>
-                        <div class="input-icon">
+                        <div class="password-field">
                             <input
                                     type="password"
                                     id="user_password_confirmation"
@@ -109,9 +121,9 @@
                                     class="form-control"
                                     placeholder="Confirm Password"
                             />
-                            <span class="input-icon-addon" onclick="password_toggler('user_password_confirmation')">
-                        <i id="user_password_confirmation_eye" class="fas fa-eye"></i>
-                    </span>
+                            <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false" title="Show password">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                     <!-- Add more fields as needed -->
@@ -125,7 +137,7 @@
     </div>
 
     <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered app-modal-dialog" role="document">
             <form id="edit-user-form" method="put" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
@@ -171,70 +183,39 @@
 
 <script>
 
-    function password_toggler(selector){
-        $('#'+selector+'_eye').toggleClass('fa-eye fa-eye-slash')
-        $('#'+selector).attr('type', function(index, attr){
-            return attr == 'text' ? 'password' : 'text';
-        });
-    }
-
     $(document).ready(function () {
 
         $('#addUserModal').on('hidden.bs.modal', function () {
             $(this).find('form')[0].reset();
         });
 
-        $("#addUser-table").DataTable({
+        var table = $("#addUser-table").DataTable({
             processing: true,
+            pageLength: 5,
+            lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
             serverSide: false,
             ajax: "{{ route('user.index') }}",
+            columnDefs: [
+                {
+                    targets: [4, 5],
+                    visible: false
+                }
+            ],
             columns: [
+                {
+                    data: null, orderable: false, searchable: false, className: 'bulk-select-cell',
+                    render: function(data, type, row) {
+                        return `<input type="checkbox" class="table-row-select" value="${row.id}" aria-label="Select ${row.username || 'user'}">`;
+                    }
+                },
                 { data: 'username' },
                 { data: 'email' },
                 { data: 'role' },
                 {
-                    data: 'created_at',
-                    render: function(data) {
-                        if (!data) return '';
-                        let dateObj = new Date(data);
-
-                        let month = dateObj.getMonth() + 1;
-                        let day = dateObj.getDate();
-                        let year = dateObj.getFullYear();
-                        let hours = dateObj.getHours();
-                        let minutes = dateObj.getMinutes();
-                        let seconds = dateObj.getSeconds();
-
-                        month = month < 10 ? '0' + month : month;
-                        day = day < 10 ? '0' + day : day;
-                        hours = hours < 10 ? '0' + hours : hours;
-                        minutes = minutes < 10 ? '0' + minutes : minutes;
-                        seconds = seconds < 10 ? '0' + seconds : seconds;
-
-                        return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
-                    }
+                    data: 'created_at'
                 },
                 {
-                    data: 'updated_at',
-                    render: function(data) {
-                        if (!data) return '';
-                        let dateObj = new Date(data);
-
-                        let month = dateObj.getMonth() + 1;
-                        let day = dateObj.getDate();
-                        let year = dateObj.getFullYear();
-                        let hours = dateObj.getHours();
-                        let minutes = dateObj.getMinutes();
-                        let seconds = dateObj.getSeconds();
-
-                        month = month < 10 ? '0' + month : month;
-                        day = day < 10 ? '0' + day : day;
-                        hours = hours < 10 ? '0' + hours : hours;
-                        minutes = minutes < 10 ? '0' + minutes : minutes;
-                        seconds = seconds < 10 ? '0' + seconds : seconds;
-
-                        return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
-                    }
+                    data: 'updated_at'
                 },
                 {
                     data: null,
@@ -251,6 +232,15 @@
                 }
             ]
         });
+
+        if (window.RSFBulkDelete) {
+            RSFBulkDelete.init({
+                table: table,
+                tableSelector: '#addUser-table',
+                deleteUrl: '{{ route("user.bulk-delete") }}',
+                buttonSelector: '#bulkDeleteUsers'
+            });
+        }
 
 // Define template once
         const editUrlTemplate = "{{ route('user.edit', ':id') }}";
@@ -271,7 +261,7 @@
                     $('#editUserModal').modal('show');
                 },
                 error: function () {
-                    Swal.fire('Error!', 'Could not fetch user data.', 'error');
+                    swal('Error!', 'Could not fetch user data.', 'error');
                 }
             });
         });

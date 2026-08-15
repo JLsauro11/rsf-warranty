@@ -1,110 +1,71 @@
 @extends('layout.app')
-@section('title', 'Home')
+@section('title', 'RS8 x SRF Dashboard')
 
 @section('content')
-    <div class="main-panel">
-        @include('layout.header')
+<div class="main-panel">
+    @include('layout.header')
+    <div class="container">
+        <div class="page-inner">
+            <section class="dashboard-hero dashboard-hero-v2">
+                <div class="hero-v2-main">
+                    <div class="hero-v2-copy">
+                        <div class="hero-v2-kicker"><span></span> Internal Warranty System</div>
+                        <h1>Warranty<br><em>Operations</em></h1>
+                        <p>One command workspace for RS8 and SRF warranty monitoring, product administration, and customer support.</p>
+                        <div class="hero-v2-tags">
+                            <span>ADMIN CONTROL</span>
+                            <span>LIVE RECORDS</span>
+                            <span>RS8 × SRF</span>
+                        </div>
+                    </div>
 
-        <div class="container">
-            <div class="page-inner">
-                <div
-                        class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4"
-                >
-                    <div>
-                        <h3 class="fw-bold mb-3">Dashboard</h3>
+                </div>
+            </section>
+
+            <div class="rs-page-heading">
+                <div class="rs-eyebrow">Live Overview</div>
+                <h2>Warranty Records</h2>
+                <p>Current registration totals across the supported warranty channels.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-xl-4">
+                    <div class="brand-stat-card rs8-card">
+                        <div class="brand-lockup">
+                            <img src="{{ asset('assets/img/rs8-brand.png') }}" alt="RS8">
+                        </div>
+                        <div class="stat-label">Warranty Records</div>
+                        <div class="stat-value" id="rs8-count-card">—</div>
+                        <div class="stat-foot">Registered RS8 customer warranty records.</div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-6 col-md-3">
-                        <div class="card card-stats card-round">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-icon">
-                                        <div
-                                                class="icon-big text-center icon-primary bubble-shadow-small"
-                                        >
-                                            <i class="fas fa-tachometer-alt"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col col-stats ms-3 ms-sm-0">
-                                        <div class="numbers">
-                                            <p class="card-category">RS8</p>
-                                            <h4 class="card-title" id="rs8-count"></h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="brand-stat-card srf-card">
+                        <div class="brand-lockup">
+                            <img src="{{ asset('assets/img/srf-brand.png') }}" alt="SRF">
                         </div>
-                    </div>
-                    <div class="col-sm-6 col-md-3">
-                        <div class="card card-stats card-round">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-icon">
-                                        <div
-                                                class="icon-big text-center icon-success bubble-shadow-small"
-                                        >
-                                            <i class="fas fa-chess-board"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col col-stats ms-3 ms-sm-0">
-                                        <div class="numbers">
-                                            <p class="card-category">SRF</p>
-                                            <h4 class="card-title" id="srf-count"></h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="stat-label">Warranty Records</div>
+                        <div class="stat-value" id="srf-count-card">—</div>
+                        <div class="stat-foot">Registered SRF customer warranty records.</div>
                     </div>
                 </div>
             </div>
         </div>
-
-        {{--<footer class="footer">--}}
-            {{--<div class="container-fluid d-flex justify-content-between">--}}
-                {{--<nav class="pull-left">--}}
-                    {{--<ul class="nav">--}}
-                        {{--<li class="nav-item">--}}
-                            {{--<a class="nav-link" href="http://www.themekita.com">--}}
-                                {{--ThemeKita--}}
-                            {{--</a>--}}
-                        {{--</li>--}}
-                        {{--<li class="nav-item">--}}
-                            {{--<a class="nav-link" href="#"> Help </a>--}}
-                        {{--</li>--}}
-                        {{--<li class="nav-item">--}}
-                            {{--<a class="nav-link" href="#"> Licenses </a>--}}
-                        {{--</li>--}}
-                    {{--</ul>--}}
-                {{--</nav>--}}
-                {{--<div class="copyright">--}}
-                    {{--2024, made with <i class="fa fa-heart heart text-danger"></i> by--}}
-                    {{--<a href="http://www.themekita.com">ThemeKita</a>--}}
-                {{--</div>--}}
-                {{--<div>--}}
-                    {{--Distributed by--}}
-                    {{--<a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.--}}
-                {{--</div>--}}
-            {{--</div>--}}
-        {{--</footer>--}}
     </div>
+</div>
 
 @push('js')
-
-    <script>
-        $(function () {
-            $.ajax({
-                url: '{{ route("admin.index") }}',
-                type: 'GET',
-                success: function(data) {
-                    $('#rs8-count').text(data.rs8Count);
-                    $('#srf-count').text(data.srfCount);
-                }
-            });
+<script>
+    $(function () {
+        $.ajax({
+            url: '{{ route("admin.index") }}',
+            type: 'GET',
+            success: function(data) {
+                $('#rs8-count-card').text(data.rs8Count);
+                $('#srf-count-card').text(data.srfCount);
+            }
         });
-    </script>
-
+    });
+</script>
 @endpush
-
 @endsection

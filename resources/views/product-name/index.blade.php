@@ -20,20 +20,32 @@
         <div class="container">
             <div class="page-inner">
                 @include('layout.breadcrumbs')
+                <div class="rs-page-heading">
+                    <div class="rs-eyebrow">Catalog Management</div>
+                    <h2>Product Names</h2>
+                    <p>Maintain the product model names used in warranty registration.</p>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title mb-0">Product Names</h4>
-                                <button id="btn-add-productName" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductNameModal">
-                                    <i class="fas fa-plus me-1"></i> Add Product Name
-                                </button>
+                                <div class="table-bulk-actions">
+                                    <button type="button" id="bulkDeleteProductNames" class="btn-bulk-delete" disabled>
+                                        <i class="fas fa-trash-alt"></i> Delete Selected
+                                        <span class="bulk-select-count" data-count="0"></span>
+                                    </button>
+                                    <button id="btn-add-productName" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductNameModal">
+                                        <i class="fas fa-plus me-1"></i> Add Product Name
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table id="product-name-table" class=" nowrap display table table-striped table-hover">
+                                    <table id="product-name-table" class="nowrap display table table-striped table-hover" style="width: 100%;">
                                         <thead>
                                         <tr>
+                                            <th class="bulk-select-head"><input type="checkbox" class="table-select-all" aria-label="Select all visible product names"></th>
                                             <th>Product Name</th>
                                             <th>Product</th>
                                             <th>Created At</th>
@@ -58,11 +70,11 @@
     </div>
 
     <div class="modal fade" id="addProductNameModal" tabindex="-1" aria-labelledby="addProductNameModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered app-modal-dialog">
             <form id="add-productName-form" method="post" enctype="multipart/form-data" class="modal-content">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addProductModalLabel">Add Product Name</h5>
+                    <h5 class="modal-title" id="addProductNameModalLabel">Add Product Name</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -90,7 +102,7 @@
     </div>
 
     <div class="modal fade" id="editProductNameModal" tabindex="-1" role="dialog" aria-labelledby="editProductNameModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered app-modal-dialog" role="document">
             <form id="edit-productName-form" method="post" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="id" id="edit_id">
@@ -135,57 +147,33 @@
             $(this).find('form')[0].reset();
         });
 
-        $("#product-name-table").DataTable({
+        var table = $("#product-name-table").DataTable({
             processing: true,
+            pageLength: 5,
+            lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
             serverSide: false,
             ajax: "{{ route('product-name.index') }}",
-            order: [[2, 'desc']],
+            order: [[3, 'desc']],
+            columnDefs: [
+                {
+                    targets: [3, 4],
+                    visible: false
+                }
+            ],
             columns: [
+                {
+                    data: null, orderable: false, searchable: false, className: 'bulk-select-cell',
+                    render: function(data, type, row) {
+                        return `<input type="checkbox" class="table-row-select" value="${row.id}" aria-label="Select ${row.model_label || 'product name'}">`;
+                    }
+                },
                 { data: 'model_label' },
                 { data: 'product.product_label' },
                 {
-                    data: 'created_at',
-                    render: function(data) {
-                        if (!data) return '';
-                        let dateObj = new Date(data);
-
-                        let month = dateObj.getMonth() + 1;
-                        let day = dateObj.getDate();
-                        let year = dateObj.getFullYear();
-                        let hours = dateObj.getHours();
-                        let minutes = dateObj.getMinutes();
-                        let seconds = dateObj.getSeconds();
-
-                        month = month < 10 ? '0' + month : month;
-                        day = day < 10 ? '0' + day : day;
-                        hours = hours < 10 ? '0' + hours : hours;
-                        minutes = minutes < 10 ? '0' + minutes : minutes;
-                        seconds = seconds < 10 ? '0' + seconds : seconds;
-
-                        return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
-                    }
+                    data: 'created_at'
                 },
                 {
-                    data: 'updated_at',
-                    render: function(data) {
-                        if (!data) return '';
-                        let dateObj = new Date(data);
-
-                        let month = dateObj.getMonth() + 1;
-                        let day = dateObj.getDate();
-                        let year = dateObj.getFullYear();
-                        let hours = dateObj.getHours();
-                        let minutes = dateObj.getMinutes();
-                        let seconds = dateObj.getSeconds();
-
-                        month = month < 10 ? '0' + month : month;
-                        day = day < 10 ? '0' + day : day;
-                        hours = hours < 10 ? '0' + hours : hours;
-                        minutes = minutes < 10 ? '0' + minutes : minutes;
-                        seconds = seconds < 10 ? '0' + seconds : seconds;
-
-                        return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
-                    }
+                    data: 'updated_at'
                 },
                 {
                     data: null,
@@ -202,6 +190,15 @@
                 }
             ]
         });
+
+        if (window.RSFBulkDelete) {
+            RSFBulkDelete.init({
+                table: table,
+                tableSelector: '#product-name-table',
+                deleteUrl: '{{ route("product-name.bulk-delete") }}',
+                buttonSelector: '#bulkDeleteProductNames'
+            });
+        }
 
         {{--var editUrlTemplate = "{{ url('product-name/edit') }}/:id";--}}
         const editUrlTemplate = "{{ route('product-name.edit', ':id') }}";

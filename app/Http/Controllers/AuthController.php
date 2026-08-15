@@ -111,7 +111,7 @@ class AuthController extends Controller
                 'subject' => 'Password Reset Verification Code',
                 'template' => 'email.confirmation',
                 'verification_code' => $verificationCode,
-                'expires_at' => $user->verification_expires_at->format('M d, Y g:i A'),
+                'expires_at' => $user->verification_expires_at->format('M d, Y g:i:s A'),
                 'user_name' => $user->username ?? $user->name ?? 'User',
             ];
 

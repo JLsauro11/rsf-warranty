@@ -261,127 +261,31 @@
     </style>
 </head>
 
-<body class="bg-body theme-dark" style="font-size: 15px; margin: 0; padding: 0; line-height: 160%; mso-line-height-rule: exactly; color: #444444; width: 100%; font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;" bgcolor="#212936">
-<center>
-    <table class="main bg-body" width="100%" cellspacing="0" cellpadding="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;" bgcolor="#212936">
-        <tr>
-            <td align="center" valign="top" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;">
-                <!--[if (gte mso 9)|(IE)]>
-                <table border="0" cellspacing="0" cellpadding="0">
-                    <tr>
-                        <td align="center" valign="top" width="640">
-                <![endif]-->
-                <span class="preheader" style="font-size: 0; padding: 0; display: none; max-height: 0; mso-hide: all; line-height: 0; color: transparent; height: 0; max-width: 0; opacity: 0; overflow: hidden; visibility: hidden; width: 0;">This is preheader text. Some clients will show this text as a preview.</span>
-                <table class="wrap" cellspacing="0" cellpadding="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%; max-width: 640px; text-align: left;">
-                    <tr>
-                        <td class="p-sm" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding: 8px;">
-                            <table cellpadding="0" cellspacing="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%;">
-                                <tr>
-                                    <td class="py-lg" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-top: 24px; padding-bottom: 24px;">
-                                        <table cellspacing="0" cellpadding="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%;">
-                                            <tr>
-                                                <td style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;">
-                                                    <a href="https://tabler.io/emails?utm_source=demo" style="color: #467fcf; text-decoration: none;"><img src="./assets/sample-tabler-white.png" width="116" height="34" alt="" style="line-height: 100%; outline: none; text-decoration: none; vertical-align: baseline; font-size: 0; border: 0 none;" /></a>
-                                                </td>
-                                                <td class="text-right" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;" align="right">
-                                                    <a href="https://tabler.io/emails?utm_source=demo" class="text-muted-light font-sm" style="color: #bbc8cd; text-decoration: none; font-size: 13px;">
-                                                        View online
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            <div class="main-content">
-                                <table class="box" cellpadding="0" cellspacing="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border: 1px solid #2b3648; border-collapse: collapse; width: 100%; border-radius: 3px; -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); color: #dddddd;" bgcolor="#2B3648">
-                                    <tr>
-                                        <td style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;">
-                                            <table cellpadding="0" cellspacing="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%;">
-
-                                                <tr>
-                                                    <td class="content text-center" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding: 40px 48px;" align="center">
-                                                        <h1 style="font-weight: 300; font-size: 28px; line-height: 130%; margin: 0 0 .5em;"><strong style="font-weight: 600;">Reset your password</strong></h1>
-                                                        <p class="text-muted mb-0" style="color: #9eb0b7; margin: 0;">Copy the code within 60 minutes to reset your password for your Juan wheels account. If you did not</p>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="content" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding: 40px 48px;">
-                                                        <table cellspacing="0" cellpadding="0" class="w-auto" align="center" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: auto;">
-                                                            <tr>
-                                                                <td class="border-dashed border-wide border-dark text-center rounded px-lg py-md" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-radius: 3px; padding: 16px 24px; border: 2px dashed #d1d1d1;" align="center">
-                                                                    <div class="h1 font-strong m-0" style="font-weight: 600; font-size: 28px; line-height: 130%; margin: 0;">{{ $data['verification_code'] }}</div>
-                                                                    <div class="text-muted font-sm" style="color: #9eb0b7; font-size: 13px;">Expires on {{ $data['expires_at'] }} </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <table cellspacing="0" cellpadding="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%;">
-                                <tr>
-                                    <td class="py-xl" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-top: 48px; padding-bottom: 48px;">
-                                        <table class="font-sm text-center text-muted" cellspacing="0" cellpadding="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: 100%; color: #9eb0b7; text-align: center; font-size: 13px;">
-                                            <tr>
-                                                <td align="center" class="pb-md" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-bottom: 16px;">
-                                                    <table class="w-auto" cellspacing="0" cellpadding="0" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; border-collapse: collapse; width: auto;">
-                                                        <tr>
-                                                            <td class="px-sm" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-right: 8px; padding-left: 8px;">
-                                                                <a href="https://tabler.io/emails?utm_source=demo" style="color: #467fcf; text-decoration: none;">
-                                                                    <img src="{{ asset('email_icons/icons-gray-social-facebook-square.png') }}" class=" va-middle" width="24" height="24" alt="social-facebook-square" style="line-height: 100%; outline: none; text-decoration: none; vertical-align: middle; font-size: 0; border: 0 none;" />
-                                                                </a>
-                                                            </td>
-                                                            <td class="px-sm" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-right: 8px; padding-left: 8px;">
-                                                                <a href="https://tabler.io/emails?utm_source=demo" style="color: #467fcf; text-decoration: none;">
-                                                                    <img src="{{ asset('email_icons/icons-gray-social-youtube.png') }}" class=" va-middle" width="24" height="24" alt="social-youtube" style="line-height: 100%; outline: none; text-decoration: none; vertical-align: middle; font-size: 0; border: 0 none;" />
-                                                                </a>
-                                                            </td>
-                                                        <!--  <td class="px-sm" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-right: 8px; padding-left: 8px;">
-                                                                        <a href="https://tabler.io/emails?utm_source=demo" style="color: #467fcf; text-decoration: none;">
-                                                                            <img src="{{ asset('email_icons/icons-gray-social-pinterest.png') }}" class=" va-middle" width="24" height="24" alt="social-pinterest" style="line-height: 100%; outline: none; text-decoration: none; vertical-align: middle; font-size: 0; border: 0 none;" />
-                                                                        </a>
-                                                                    </td> -->
-                                                        <!-- <td class="px-sm" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-right: 8px; padding-left: 8px;">
-                                                                        <a href="https://tabler.io/emails?utm_source=demo" style="color: #467fcf; text-decoration: none;">
-                                                                            <img src="{{ asset('email_icons/icons-gray-social-instagram.png') }}" class=" va-middle" width="24" height="24" alt="social-instagram" style="line-height: 100%; outline: none; text-decoration: none; vertical-align: middle; font-size: 0; border: 0 none;" />
-                                                                        </a>
-                                                                    </td> -->
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-lg" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-right: 24px; padding-left: 24px;">
-                                                    If you have any questions, feel free to message us at <a href="mailto:support@tabler.io" class="text-muted" style="color: #9eb0b7; text-decoration: none;">{{ env('SUPPORT_MAIL') }}</a>.
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="pt-md" style="font-family: Open Sans, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, Helvetica, Arial, sans-serif; padding-top: 16px;">
-                                                    You are receiving this email because you recently sign up to our Juan Wheels. <br><a href="https://tabler.io/emails?utm_source=demo" class="text-muted" style="color: #9eb0b7; text-decoration: none;">Unsubscribe</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-                <!--[if (gte mso 9)|(IE)]>
-                </td>
-                </tr>
-                </table>
-                <![endif]-->
-            </td>
-        </tr>
-    </table>
-</center>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033;">
+<span style="display:none!important;font-size:1px;color:#eef2f7;max-height:0;max-width:0;opacity:0;overflow:hidden;">Your password reset verification code is {{ $data['verification_code'] }}.</span>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#eef2f7" style="width:100%;background:#eef2f7;border-collapse:collapse;">
+    <tr><td align="center" style="padding:36px 16px;">
+            <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;border-collapse:separate;background:#ffffff;border:1px solid #dce3ec;border-radius:12px;overflow:hidden;box-shadow:0 8px 28px rgba(23,32,51,.08);">
+                <tr><td style="height:5px;background:#ef233c;font-size:0;line-height:0;">&nbsp;</td></tr>
+                <tr><td align="center" style="padding:34px 40px 20px;">
+                        <div style="display:inline-block;padding:7px 12px;background:#fff1f3;border:1px solid #ffd1d7;border-radius:999px;color:#d71932;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;">Warranty Management</div>
+                        <h1 style="margin:22px 0 8px;font-size:28px;line-height:1.25;color:#111827;font-weight:800;">Password Reset Verification</h1>
+                        <p style="margin:0;color:#667085;font-size:14px;line-height:1.7;">We received a request to reset your password. Use the one-time verification code below to continue.</p>
+                    </td></tr>
+                <tr><td style="padding:8px 40px 28px;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:separate;background:#f7f9fc;border:1px solid #e3e8ef;border-radius:10px;">
+                            <tr><td align="center" style="padding:26px 20px 8px;color:#667085;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Your verification code</td></tr>
+                            <tr><td align="center" style="padding:0 20px;"><div style="font-family:'Courier New',monospace;font-size:36px;line-height:1.2;font-weight:800;letter-spacing:8px;color:#111827;">{{ $data['verification_code'] }}</div></td></tr>
+                            <tr><td align="center" style="padding:12px 20px 25px;color:#667085;font-size:13px;">Valid until <strong style="color:#344054;">{{ $data['expires_at'] }}</strong></td></tr>
+                        </table>
+                    </td></tr>
+                <tr><td style="padding:0 40px 30px;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#fff8e6;border-left:4px solid #f4b740;border-collapse:separate;border-radius:6px;">
+                            <tr><td style="padding:14px 16px;color:#6b5420;font-size:13px;line-height:1.6;"><strong>Security notice:</strong> Never share this code with anyone. If you did not request a password reset, you can safely ignore this email.</td></tr>
+                        </table>
+                    </td></tr>
+                <tr><td style="border-top:1px solid #edf0f4;padding:22px 40px 30px;text-align:center;color:#98a2b3;font-size:12px;line-height:1.7;">Need help? Contact us at <a href="mailto:{{ env('SUPPORT_MAIL') }}" style="color:#d71932;text-decoration:none;font-weight:700;">{{ env('SUPPORT_MAIL') }}</a><br><span style="color:#b0b8c4;">RS8 &amp; SRF Warranty Management System</span></td></tr>
+            </table>
+        </td></tr></table>
 </body>
-
 </html>

@@ -4647,3 +4647,66 @@ table.dataTable thead > tr > th.action-column::before,
 table.dataTable thead > tr > th.action-column::after {
     display: none !important;
 }
+
+/* =========================================================
+   REGISTRATION BRAND LOCKUP - RESPONSIVE LAPTOP ALIGNMENT
+   Keeps RS8 + SRF on one clean row without wrapping when the
+   desktop viewport/left panel becomes narrower.
+   ========================================================= */
+@media screen and (min-width: 992px) {
+    .registration-shell .rs-auth-brand {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .registration-shell .rs-auth-brand .brand-combo {
+        display: grid;
+        grid-template-columns: minmax(0, .9fr) 1px minmax(0, 1fr);
+        align-items: center;
+        width: min(100%, 440px);
+        max-width: 100%;
+        gap: clamp(10px, 1vw, 16px);
+        flex-wrap: nowrap;
+    }
+
+    .registration-shell .rs-auth-brand .rs8-logo,
+    .registration-shell .rs-auth-brand .srf-logo {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+        min-width: 0;
+        object-fit: contain;
+        object-position: left center;
+    }
+
+    .registration-shell .rs-auth-brand .rs8-logo {
+        max-width: 190px;
+        justify-self: start;
+    }
+
+    .registration-shell .rs-auth-brand .srf-logo {
+        max-width: 215px;
+        justify-self: start;
+    }
+
+    .registration-shell .rs-auth-brand .brand-divider {
+        width: 1px;
+        height: clamp(22px, 2vw, 28px);
+        margin: 0;
+        justify-self: center;
+        align-self: center;
+    }
+}
+
+/* Compact laptop widths: preserve breathing room around the lockup. */
+@media screen and (min-width: 992px) and (max-width: 1366px) {
+    .registration-shell .rs-auth-visual {
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+    }
+
+    .registration-shell .rs-auth-brand .brand-combo {
+        width: min(100%, 380px);
+        gap: 11px;
+    }
+}
